@@ -4,7 +4,7 @@ describe Linked::Item do
   subject { ::Linked::Item }
   
   let(:item) { subject.new }
-  let(:item_in_list) { subject.new list }
+  let(:item_in_list) { subject.new list: list }
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
   let(:item_c) { subject.new }
@@ -31,7 +31,7 @@ describe Linked::Item do
       head.expect(:next=, nil) { |nxt| next_item = nxt }
       tail.expect(:prev=, nil) { |prev| prev_item = prev }
       
-      assert_silent { item = subject.new list }
+      assert_silent { item = subject.new list: list }
       
       list.verify
       
@@ -143,7 +143,7 @@ describe Linked::Item do
   
   describe '#list' do
     it 'returns the list if one was given' do
-      item = subject.new list
+      item = subject.new list: list
       assert_equal list.object_id, item.list.object_id
     end
   end

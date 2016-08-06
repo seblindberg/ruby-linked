@@ -28,7 +28,7 @@ module Linked
     #
     # Returns a new Item.
     
-    def initialize(list = nil)
+    def initialize(list: nil)
       @list = list
       if list
         @prev = list.head
