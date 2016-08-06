@@ -100,10 +100,12 @@ module Linked
     alias previous! prev!
     
     # Inserts the given item between this one and the one after it (if any). If
-    # this is the last item, and the items are part of a list, #prev= will be
-    # called on the list tail.
+    # the given item is part of a chain, all items following it will be moved to
+    # this one, and added to the list if one is set.
     #
-    # If this item is part of a list #increment will be called on it.
+    # If this item is part of a list #increment will be called on it with the
+    # number of added items as an argument. Should it also be the last item
+    # #prev= will be called on the list tail.
     #
     # sibling - the item to append.
     
@@ -126,10 +128,12 @@ module Linked
     end
     
     # Inserts the given item between this one and the one before it (if any). If
-    # this is the first item, and the items are part of a list, #next= will be
-    # called on the list head.
+    # the given item is part of a chain, all items preceeding it will be moved
+    # to this one, and added to the list if one is set.
     #
-    # If this item is part of a list #increment will be called on it.
+    # If this item is part of a list #increment will be called on it with the
+    # number of added items as an argument. Should it also be the first item
+    # #next= will be called on the list head.
     #
     # sibling - the item to prepend.
     
@@ -146,7 +150,7 @@ module Linked
       @list.increment count if @list
       
       sibling.prev = before_sibling
-      before_sibling.next = sibling if before_sibling      
+      before_sibling.next = sibling if before_sibling
     end
     
     # Remove an item from the chain. If this item is part of a list and is
