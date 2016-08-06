@@ -118,21 +118,25 @@ module Linked
     # the given item is part of a chain, all items following it will be moved to
     # this one, and added to the list if one is set.
     #
+    # Alternativly the argument can be an arbitrary object, in which case a new
+    # item will be created around it.
+    #
     # If this item is part of a list #increment will be called on it with the
     # number of added items as an argument. Should it also be the last item
     # #prev= will be called on the list tail.
     #
-    # sibling - the item to append.
+    # sibling - the item to append, or an arbitrary object to be wraped in a new
+    #           item.
     #
     # Returns the last item that was appended.
     
     def append(sibling)
+      return append self.class.new sibling unless sibling.is_a? self.class
+      
       sibling.prev = self
       after_sibling = @next
       @next = sibling
       
-      # Count how many siblings will be added and add the
-      # list to all of them
       count = 1 + loop.count do
         sibling.list = @list
         sibling = sibling.next
@@ -149,15 +153,21 @@ module Linked
     # the given item is part of a chain, all items preceeding it will be moved
     # to this one, and added to the list if one is set.
     #
+    # Alternativly the argument can be an arbitrary object, in which case a new
+    # item will be created around it.
+    #
     # If this item is part of a list #increment will be called on it with the
     # number of added items as an argument. Should it also be the first item
     # #next= will be called on the list head.
     #
-    # sibling - the item to prepend.
+    # sibling - the item to prepend. or an arbitrary object to be wraped in a
+    #           new item.
     #
     # Returns the last item that was prepended.
     
     def prepend(sibling)
+      return prepend self.class.new sibling unless sibling.is_a? self.class
+      
       sibling.next = self
       before_sibling = @prev
       @prev = sibling

@@ -204,6 +204,11 @@ describe Linked::Item do
       
       assert_equal list.object_id, item_c.list.object_id
     end
+    
+    it 'accepts a value' do
+      item.append :value
+      assert_equal :value, item.next.value
+    end
   end
 
   describe '#prepend' do
@@ -256,6 +261,11 @@ describe Linked::Item do
       head.verify
       
       assert_equal list.object_id, item_a.list.object_id
+    end
+    
+    it 'accepts a value' do
+      item.prepend :value
+      assert_equal :value, item.prev.value
     end
   end
     
