@@ -31,6 +31,11 @@ describe Linked::List do
       assert_equal 1, list.count
     end
     
+    it 'returns self' do
+      ret = list.push item
+      assert_same list, ret
+    end
+    
     it 'inserts multiple items' do
       list.push item_a
       list.push item_b
@@ -45,6 +50,10 @@ describe Linked::List do
       list.push item_a
       
       assert_equal 2, list.count
+    end
+    
+    it 'is aliased to #<<' do
+      assert_equal list.method(:push), list.method(:<<)
     end
   end
   
@@ -73,6 +82,10 @@ describe Linked::List do
       assert_nil list.last
       assert_equal 0, list.count
     end
+    
+    it 'returns nil for empty lists' do
+      assert_nil list.pop
+    end
   end
   
   describe 'unshift' do
@@ -83,6 +96,11 @@ describe Linked::List do
       assert_nil item.prev!
       assert_nil item.next!
       assert_equal 1, list.count
+    end
+    
+    it 'returns self' do
+      ret = list.unshift item
+      assert_same list, ret
     end
     
     it 'inserts multiple items' do
@@ -126,6 +144,10 @@ describe Linked::List do
       assert_nil list.first
       assert_nil list.last
       assert_equal 0, list.count
+    end
+    
+    it 'returns nil for empty lists' do
+      assert_nil list.shift
     end
   end
 end

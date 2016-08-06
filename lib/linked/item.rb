@@ -142,7 +142,7 @@ module Linked
         sibling = sibling.next
       end
       
-      @list.increment count if @list
+      @list.send :increment, count if @list
       
       sibling.next = after_sibling
       after_sibling.prev = sibling if after_sibling
@@ -177,7 +177,7 @@ module Linked
         sibling = sibling.prev
       end
       
-      @list.increment count if @list
+      @list.send :increment, count if @list
       
       sibling.prev = before_sibling
       before_sibling.next = sibling if before_sibling
@@ -195,7 +195,7 @@ module Linked
     def delete
       @next.prev = @prev if @next
       @prev.next = @next if @prev
-      @list.decrement if @list
+      @list.send :decrement if @list
       
       @next = @prev = @list = nil
       self
