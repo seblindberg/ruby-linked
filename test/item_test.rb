@@ -139,6 +139,10 @@ describe Linked::Item do
       item.append sibling
       assert_same sibling, item.next
     end
+    
+    it 'returns the item that was added' do
+      assert_same sibling, item.append(sibling)
+    end
 
     it 'inserts an item between two' do
       item_a.append item_c
@@ -152,9 +156,10 @@ describe Linked::Item do
     
     it 'inserts multiple connected items' do
       item_b.append item_c
-      item_a.append item_b
+      ret = item_a.append item_b
       
       assert_same item_c, item_b.next
+      assert_same item_c, ret
     end
     
     it 'calls #prev= on tail and #incerment on the list when last in one' do
@@ -187,6 +192,10 @@ describe Linked::Item do
       item.prepend sibling
       assert_same sibling, item.prev
     end
+    
+    it 'returns the added item' do
+      assert_same sibling, item.prepend(sibling)
+    end
 
     it 'inserts an item between two' do
       item_a.append item_c
@@ -200,9 +209,10 @@ describe Linked::Item do
     
     it 'inserts multiple connected items' do
       item_b.prepend item_a
-      item_c.prepend item_b
+      ret = item_c.prepend item_b
       
       assert_same item_a, item_b.prev
+      assert_same item_a, ret
     end
     
     it 'calls #next= on head and #incerment on the list when first in one' do

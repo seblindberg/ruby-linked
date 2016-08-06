@@ -108,6 +108,8 @@ module Linked
     # #prev= will be called on the list tail.
     #
     # sibling - the item to append.
+    #
+    # Returns the last item that was appended.
     
     def append(sibling)
       sibling.prev = self
@@ -125,6 +127,7 @@ module Linked
       
       sibling.next = after_sibling
       after_sibling.prev = sibling if after_sibling
+      sibling
     end
     
     # Inserts the given item between this one and the one before it (if any). If
@@ -136,6 +139,8 @@ module Linked
     # #next= will be called on the list head.
     #
     # sibling - the item to prepend.
+    #
+    # Returns the last item that was prepended.
     
     def prepend(sibling)
       sibling.next = self
@@ -151,6 +156,7 @@ module Linked
       
       sibling.prev = before_sibling
       before_sibling.next = sibling if before_sibling
+      sibling
     end
     
     # Remove an item from the chain. If this item is part of a list and is
