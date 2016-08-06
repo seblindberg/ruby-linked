@@ -339,4 +339,40 @@ describe Linked::Item do
       list.verify
     end
   end
+  
+  describe '#before' do
+    it 'returns an enumerator' do
+      assert_kind_of Enumerator, item.before
+    end
+    
+    it 'iterates over the items' do
+      item_a.append item_b
+      item_b.append item_c
+      
+      res = []
+      item_c.before { |item| res << item }
+      
+      assert_same item_b, res[0]
+      assert_same item_a, res[1]
+      assert_equal 2, res.length
+    end
+  end
+  
+  describe '#after' do
+    it 'returns an enumerator' do
+      assert_kind_of Enumerator, item.after
+    end
+    
+    it 'iterates over the items' do
+      item_a.append item_b
+      item_b.append item_c
+      
+      res = []
+      item_a.after { |item| res << item }
+      
+      assert_same item_b, res[0]
+      assert_same item_c, res[1]
+      assert_equal 2, res.length
+    end
+  end
 end

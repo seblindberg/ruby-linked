@@ -201,5 +201,34 @@ module Linked
       self
     end
     
+    # Iterates over each item before this, in reverse order. If a block is not
+    # given an enumerator is returned.
+    
+    def before
+      return to_enum(__callee__) unless block_given?
+      return if first?
+      
+      item = self.prev
+      
+      loop do
+        yield item
+        item = item.prev
+      end
+    end
+    
+    # Iterates over each item after this. If a block is not given an enumerator
+    # is returned.
+    
+    def after
+      return to_enum(__callee__) unless block_given?
+      return if last?
+      
+      item = self.next
+      
+      loop do
+        yield item
+        item = item.next
+      end
+    end
   end
 end
