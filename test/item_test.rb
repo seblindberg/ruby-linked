@@ -23,7 +23,12 @@ describe Linked::Item do
   end
   
   describe '.new' do
-    it 'accepts an object responding to #head and #tail' do
+    it 'accepts a value' do
+      item = subject.new :value
+      assert_equal :value, item.value
+    end
+    
+    it 'accepts a list object responding to #head and #tail' do
       item = nil
       next_item = nil
       prev_item = nil

@@ -17,18 +17,20 @@
 
 module Linked
   class Item
-    attr_accessor :list
+    attr_accessor :list, :value
     attr_writer :prev, :next
     protected :prev=, :next=, :list=
     
     # Creates a new item. If a list is given the item will be considered a part
     # of that list.
     #
-    # list - An object responding to #head and #tail.
+    # value - an arbitrary object to store with the item.
+    # list - an object responding to #head and #tail.
     #
     # Returns a new Item.
     
-    def initialize(list: nil)
+    def initialize(value = nil, list: nil)
+      @value = value
       @list = list
       if list
         @prev = list.head
