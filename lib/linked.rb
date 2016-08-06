@@ -5,5 +5,7 @@ require 'linked/list/tail'
 require 'linked/list'
 
 module Linked
-  # Your code goes here...
+  module_function def List(object)
+    
+  end
 end
