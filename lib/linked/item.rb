@@ -131,7 +131,7 @@ module Linked
     # Returns the last item that was appended.
     
     def append(sibling)
-      return append self.class.new sibling unless sibling.is_a? self.class
+      sibling = self.class.new sibling unless sibling.is_a? self.class
       
       sibling.prev = self
       after_sibling = @next
@@ -166,7 +166,7 @@ module Linked
     # Returns the last item that was prepended.
     
     def prepend(sibling)
-      return prepend self.class.new sibling unless sibling.is_a? self.class
+      sibling = self.class.new sibling unless sibling.is_a? self.class
       
       sibling.next = self
       before_sibling = @prev
