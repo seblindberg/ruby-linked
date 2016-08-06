@@ -8,7 +8,9 @@ describe Linked::Item do
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
   let(:item_c) { subject.new }
+  
   let(:sibling) { subject.new }
+  
   let(:head) { Minitest::Mock.new }
   let(:tail) { Minitest::Mock.new }
   let(:list) do
@@ -148,13 +150,35 @@ describe Linked::Item do
       assert_same item_c, item_b.next
     end
     
-    it 'calls #prev= on the tail when last in a list' do
+    it 'inserts multiple connected items' do
+      item_b.append item_c
+      item_a.append item_b
+      
+      assert_same item_c, item_b.next
+    end
+    
+    it 'calls #prev= on tail and #incerment on the list when last in one' do
+      list.expect :increment, nil, [1]
       tail.expect :prev=, nil, [sibling]
       
       item_in_list.append sibling
       
       tail.verify
+      list.verify
       assert_equal sibling.next!.object_id, tail.object_id
+    end
+    
+    it 'inserts multiple connected items when in a list' do
+      list.expect :increment, nil, [2]
+      tail.expect :prev=, nil, [item_c]
+      
+      item_b.append item_c
+      item_in_list.append item_b
+      
+      list.verify
+      tail.verify
+      
+      assert_equal list.object_id, item_c.list.object_id
     end
   end
 
@@ -174,13 +198,35 @@ describe Linked::Item do
       assert_same item_c, item_b.next
     end
     
-    it 'calls #next= on the head when first in a list' do
+    it 'inserts multiple connected items' do
+      item_b.prepend item_a
+      item_c.prepend item_b
+      
+      assert_same item_a, item_b.prev
+    end
+    
+    it 'calls #next= on head and #incerment on the list when first in one' do
+      list.expect :increment, nil, [1]
       head.expect :next=, nil, [sibling]
       
       item_in_list.prepend sibling
       
       head.verify
+      list.verify
       assert_equal sibling.prev!.object_id, head.object_id
+    end
+    
+    it 'inserts multiple connected items when in a list' do
+      list.expect :increment, nil, [2]
+      head.expect :next=, nil, [item_a]
+      
+      item_b.prepend item_a
+      item_in_list.prepend item_b
+      
+      list.verify
+      head.verify
+      
+      assert_equal list.object_id, item_a.list.object_id
     end
   end
     
@@ -193,14 +239,14 @@ describe Linked::Item do
       assert_same item, item.delete
     end
     
-    it 'removes the item from the end of a list' do
+    it 'removes the item from the end of a chain' do
       item_a.append item_b
       item_b.delete
       
       assert item_a.last?
     end
     
-    it 'removes the item from the middles of a list' do
+    it 'removes the item from the middles of a chain' do
       item_a.append item_b
       item_b.append item_c
       item_b.delete
@@ -211,41 +257,47 @@ describe Linked::Item do
       assert_nil item_b.prev!
     end
     
-    it 'removes the item from the beginning of a list' do
+    it 'removes the item from the beginning of a chain' do
       item_b.append item_c
       item_b.delete
       
       assert item_c.first?
     end
     
-    it 'calls #next= on head when first in a list' do
+    it 'calls #next= on head and #decrement on list when first in a list' do
       # First setup the item chain
+      list.expect :increment, nil, [1]
       tail.expect :prev=, nil, [sibling]
       item_in_list.append sibling
-      tail.verify
       
+      list.expect :decrement, nil
       head.expect :next=, nil, [sibling]
       item_in_list.delete
       head.verify
+      list.verify
     end
     
     it 'calls #prev= on tail when last in a list' do
       # First setup the item chain
+      list.expect :increment, nil, [1]
       head.expect :next=, nil, [sibling]
       item_in_list.prepend sibling
-      head.verify
       
+      list.expect :decrement, nil
       tail.expect :prev=, nil, [sibling]
       item_in_list.delete
       tail.verify
+      list.verify
     end
     
     it 'calls both #next= and #prev= when deleting a single item' do
+      list.expect :decrement, nil
       head.expect :next=, nil, [tail]
       tail.expect :prev=, nil, [head]
       item_in_list.delete
       head.verify
       tail.verify
+      list.verify
     end
   end
 end
