@@ -27,7 +27,9 @@ module Linked
       @list = list
       if list
         @prev = list.head
+        @prev.next = self
         @next = list.tail
+        @next.prev = self
       else
         @next = nil
         @prev = nil

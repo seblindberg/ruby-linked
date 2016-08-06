@@ -17,13 +17,27 @@ describe Linked::Item do
     mock = Minitest::Mock.new
     mock.expect :head, head
     mock.expect :tail, tail
+    head.expect(:next=, nil) { |_| true }
+    tail.expect(:prev=, nil) { |_| true }
     mock
   end
   
   describe '.new' do
     it 'accepts an object responding to #head and #tail' do
-      assert_silent { subject.new list }
+      item = nil
+      next_item = nil
+      prev_item = nil
+      
+      head.expect(:next=, nil) { |nxt| next_item = nxt }
+      tail.expect(:prev=, nil) { |prev| prev_item = prev }
+      
+      assert_silent { item = subject.new list }
+      
       list.verify
+      
+      refute_nil item
+      assert_same item, prev_item
+      assert_same item, next_item
     end
   end
     
