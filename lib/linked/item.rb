@@ -1,13 +1,13 @@
 module Linked
   class Item
     attr_accessor :list
-    attr_writer :prev
-    protected :prev=, :list=
+    attr_writer :prev, :next
+    protected :prev=, :next=, :list=
     
     # Creates a new item. If a list is given the item will be considered a part
     # of that list.
     #
-    # list - An object responding to #append, #prepend, #pop and #unshift.
+    # list - An object responding to #head and #tail.
     #
     # Returns a new Item.
     
@@ -58,11 +58,6 @@ module Linked
       @next
     end
     
-    protected def next=(other)
-      @next = other
-      #other.prev = self if other
-    end
-    
     # Access the previous item in the list. If this is the first one a
     # StopIteration will be raised, so that items may be iterated over safely in
     # a loop.
@@ -93,10 +88,8 @@ module Linked
     alias previous! prev!
     
     # Inserts the given item between this one and the one after it (if any). If
-    # this is the last item, and the items are part of a list, the appending
-    # will be delegated to the #append method of the list. That method must call
-    # #prepend on the sibling and pass in this item, to ensure that everything
-    # is linked up correctly.
+    # this is the last item, and the items are part of a list, #prev= will be
+    # called on the list tail.
     #
     # sibling - the item to append.
     
@@ -111,10 +104,8 @@ module Linked
     end
     
     # Inserts the given item between this one and the one before it (if any). If
-    # this is the first item, and the items are part of a list, the prepending
-    # will be delegated to the #prepend method of the list. That method must
-    # call #append on the sibling and pass in this item, to ensure that
-    # everything is linked up correctly.
+    # this is the first item, and the items are part of a list, #next= will be
+    # called on the list head.
     #
     # sibling - the item to prepend.
     
@@ -128,7 +119,9 @@ module Linked
       sibling.next = self
     end
     
-    # Remove an item from the chain.
+    # Remove an item from the chain. If this item is part of a list and is
+    # either first, last or both in that list, #next= and #prev= will be called
+    # on the list head and tail respectivly.
     #
     # Returns self.
     
