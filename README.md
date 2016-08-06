@@ -1,5 +1,9 @@
 # Linked
 
+[![Build Status](https://travis-ci.org/seblindberg/ruby-linked.svg?branch=master)](https://travis-ci.org/seblindberg/ruby-linked)
+[![Coverage Status](https://coveralls.io/repos/github/seblindberg/ruby-linked/badge.svg?branch=master)](https://coveralls.io/github/seblindberg/ruby-linked?branch=master)
+[![Inline docs](http://inch-ci.org/github/seblindberg/ruby-linked.svg?branch=master)](http://inch-ci.org/github/seblindberg/ruby-linked)
+
 Yet another Linked List implementation for Ruby (hence the somewhat awkward name). The library is still under development.
 
 ## Installation
