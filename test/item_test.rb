@@ -4,43 +4,99 @@ describe Linked::Item do
   subject { ::Linked::Item }
   
   let(:item) { subject.new }
+  let(:item_in_list) { subject.new list }
+  let(:item_a) { subject.new }
+  let(:item_b) { subject.new }
+  let(:item_c) { subject.new }
+  let(:sibling) { subject.new }
+  let(:head) { Minitest::Mock.new }
+  let(:tail) { Minitest::Mock.new }
+  let(:list) do
+    mock = Minitest::Mock.new
+    mock.expect :head, head
+    mock.expect :tail, tail
+    mock
+  end
   
+  describe '.new' do
+    it 'accepts an object responding to #head and #tail' do
+      assert_silent { subject.new list }
+      list.verify
+    end
+  end
+    
   describe '#first?' do
     it 'returns true when there is no item before it' do
+      item.append sibling
       assert item.first?
     end
     
-    it 'returns false when there is an item before it'
+    it 'returns false when there is an item before it' do
+      item.prepend sibling
+      refute item.first?
+    end
+    
+    it 'returns true when first in a list' do
+      head.expect :nil?, true
+      assert item_in_list.first?
+      head.verify
+    end
   end
   
   describe '#last?' do
     it 'returns true when there is no item after it' do
+      item.prepend sibling
       assert item.last?
     end
     
-    it 'returns false when there is an item after it'
+    it 'returns false when there is an item after it' do
+      item.append sibling
+      refute item.last?
+    end
+    
+    it 'returns true when lasy in a list' do
+      tail.expect :nil?, true
+      assert item_in_list.last?
+      tail.verify
+    end
   end
   
   describe '#next' do
-    it 'returns the next item'
+    it 'returns the next item' do
+      item.append sibling
+      assert_same sibling, item.next
+    end
     
     it 'raises an exception when there is no item after it' do
+      item.prepend sibling
       assert_raises(StopIteration) { item.next }
     end
   end
   
   describe '#next!' do
-    it 'returns the next item'
+    it 'returns the next item' do
+      item.append sibling
+      assert_same sibling, item.next
+    end
 
     it 'returns nil when there is no item after it' do
+      item.prepend sibling
       assert_nil item.next!
+    end
+    
+    it 'returns the tail when last in a list' do
+      assert_equal tail.object_id, item_in_list.next!.object_id
     end
   end
   
   describe '#prev' do
-    it 'returns the previous item'
+    it 'returns the previous item' do
+      item.prepend sibling
+      assert_same sibling, item.prev
+    end
 
     it 'raises an exception when there is no item before it' do
+      item.append sibling
       assert_raises(StopIteration) { item.prev }
     end
     
@@ -50,14 +106,146 @@ describe Linked::Item do
   end
 
   describe '#prev!' do
-    it 'returns the next item'
+    it 'returns the previous item' do
+      item.prepend sibling
+      assert_same sibling, item.prev
+    end
 
     it 'returns nil when there is no item before it' do
+      item.append sibling
       assert_nil item.prev!
+    end
+    
+    it 'returns the head when first in a list' do
+      assert_equal head.object_id, item_in_list.prev!.object_id
     end
     
     it 'is aliased to #previous!' do
       assert_equal item.method(:prev!), item.method(:previous!)
+    end
+  end
+  
+  describe '#list' do
+    it 'returns the list if one was given' do
+      item = subject.new list
+      assert_equal list.object_id, item.list.object_id
+    end
+  end
+  
+  describe '#append' do
+    it 'inserts an item after it' do
+      item.append sibling
+      assert_same sibling, item.next
+    end
+
+    it 'inserts an item between two' do
+      item_a.append item_c
+      item_a.append item_b
+
+      assert_same item_b, item_a.next
+      assert_same item_b, item_c.prev
+      assert_same item_a, item_b.prev
+      assert_same item_c, item_b.next
+    end
+    
+    it 'calls #prev= on the tail when last in a list' do
+      tail.expect :prev=, nil, [sibling]
+      
+      item_in_list.append sibling
+      
+      tail.verify
+      assert_equal sibling.next!.object_id, tail.object_id
+    end
+  end
+
+  describe '#prepend' do
+    it 'inserts an item before it' do
+      item.prepend sibling
+      assert_same sibling, item.prev
+    end
+
+    it 'inserts an item between two' do
+      item_a.append item_c
+      item_c.prepend item_b
+
+      assert_same item_b, item_a.next
+      assert_same item_b, item_c.prev
+      assert_same item_a, item_b.prev
+      assert_same item_c, item_b.next
+    end
+    
+    it 'calls #next= on the head when first in a list' do
+      head.expect :next=, nil, [sibling]
+      
+      item_in_list.prepend sibling
+      
+      head.verify
+      assert_equal sibling.prev!.object_id, head.object_id
+    end
+  end
+    
+  describe '#delete' do
+    it 'does nothing for a single item' do
+      assert_silent { item.delete }
+    end
+    
+    it 'returns self' do
+      assert_same item, item.delete
+    end
+    
+    it 'removes the item from the end of a list' do
+      item_a.append item_b
+      item_b.delete
+      
+      assert item_a.last?
+    end
+    
+    it 'removes the item from the middles of a list' do
+      item_a.append item_b
+      item_b.append item_c
+      item_b.delete
+      
+      assert_same item_c, item_a.next
+      assert_same item_a, item_c.prev
+      assert_nil item_b.next!
+      assert_nil item_b.prev!
+    end
+    
+    it 'removes the item from the beginning of a list' do
+      item_b.append item_c
+      item_b.delete
+      
+      assert item_c.first?
+    end
+    
+    it 'calls #next= on head when first in a list' do
+      # First setup the item chain
+      tail.expect :prev=, nil, [sibling]
+      item_in_list.append sibling
+      tail.verify
+      
+      head.expect :next=, nil, [sibling]
+      item_in_list.delete
+      head.verify
+    end
+    
+    it 'calls #prev= on tail when last in a list' do
+      # First setup the item chain
+      head.expect :next=, nil, [sibling]
+      item_in_list.prepend sibling
+      head.verify
+      
+      tail.expect :prev=, nil, [sibling]
+      item_in_list.delete
+      tail.verify
+    end
+    
+    it 'calls both #next= and #prev= when deleting a single item' do
+      head.expect :next=, nil, [tail]
+      tail.expect :prev=, nil, [head]
+      item_in_list.delete
+      head.verify
+      tail.verify
     end
   end
 end
