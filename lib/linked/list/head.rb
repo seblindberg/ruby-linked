@@ -11,7 +11,7 @@ module Linked
       # foremost an implementation detail to comply with the requirements of the
       # Item class, but also logical in the sense that Head objects are not
       # really part of the list, and should therefore be considered nil.
-      # 
+      #
       # Returns true.
       
       def nil?
@@ -25,6 +25,10 @@ module Linked
       
       def next
         raise StopIteration if @next.nil?
+        @next
+      end
+      
+      def next!
         @next
       end
     end

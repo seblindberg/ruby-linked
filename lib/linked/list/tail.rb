@@ -31,6 +31,10 @@ module Linked
       end
       
       alias previous prev
+      
+      def prev!
+        @prev
+      end
     end
   end
 end

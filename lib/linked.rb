@@ -1,5 +1,6 @@
 require 'linked/version'
 require 'linked/item'
+require 'linked/list/eol'
 require 'linked/list/head'
 require 'linked/list/tail'
 require 'linked/list'
