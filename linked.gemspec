@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Yet another linked list implementation in Ruby.}
   spec.description   = %q{Yes, there are a lot of linked list implementaions out there but I wrote my own all the same. This library is ment to be subclassed/included by other objects that that behave like linked lists.}
-  #spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/seblindberg/ruby-linked"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
