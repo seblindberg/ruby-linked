@@ -17,6 +17,7 @@ describe Linked::List::Head do
     end
     
     it 'allows next to be set' do
+      item.expect :nil?, false
       head.next = item
       assert_equal item.object_id, head.next.object_id
     end

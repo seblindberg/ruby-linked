@@ -12,7 +12,7 @@ module Linked
       end
       
       def next
-        raise StopIteration unless @next
+        raise StopIteration if @next.nil?
         @next
       end
     end
