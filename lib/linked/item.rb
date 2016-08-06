@@ -34,13 +34,19 @@ module Linked
       end
     end
     
-    # Check if this is the first item in the list.
+    # Check if this is the first item in the list. It is crucial that tail#nil?
+    # returns true for the first item to be identified correctly.
     #
     # Returns true if no item come before this one.
     
     def first?
       @prev.nil?
     end
+    
+    # Check if this is the last item in the list. It is crucial that head#nil?
+    # returns true for the last item to be identified correctly.
+    #
+    # Returns true if no item come after this one.
     
     def last?
       @next.nil?
