@@ -1,7 +1,16 @@
+# End Of List
+#
+# This class implements a special list item that is placed at both the end and
+# the beginning of a chain of regular items to form a list. The naming (end of
+# list) comes from the fact that this object, by returning true for calls to
+# #nil?, signifies the end of a list of Items. In both directions as a matter of
+# fact, which is why the head and tail objects defined by Item is combined into
+# one.
+
 module Linked
   class List
     class EOL < Item
-      private :value, :value=, :delete
+      private :value, :value=, :delete, :first?, :last?
       
       def initialize(list:)
         super()

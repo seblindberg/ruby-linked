@@ -7,14 +7,9 @@ module Linked
       @eol = EOL.new list: self
       @count = 0
     end
-        
-    def head
-      eol
-    end
     
-    def tail
-      eol
-    end
+    alias head eol
+    alias tail eol
     
     def first
       eol.next!
