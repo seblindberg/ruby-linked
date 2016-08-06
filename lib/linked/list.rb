@@ -1,5 +1,5 @@
 module Linked
-  class List
+  module List
     attr_reader :eol, :count
     
     def initialize(*)

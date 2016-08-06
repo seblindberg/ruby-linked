@@ -8,7 +8,7 @@
 # one.
 
 module Linked
-  class List
+  module List
     class EOL < Item
       private :value, :value=, :delete, :first?, :last?
       
