@@ -78,4 +78,42 @@ describe Linked::List::EOL do
       list.verify
     end
   end
+  
+  describe '#before' do
+    it 'returns an empty iterator when it contains no items' do
+      enum = eol.before
+      assert_raises(StopIteration) { enum.next }
+    end
+    
+    it 'iterates over all items in reverse' do
+      list.expect :increment, nil, [1]
+      eol.append item_a
+      list.expect :increment, nil, [1]
+      eol.append item_b
+
+      res = eol.before.to_a
+
+      assert_same item_b, res.first
+      assert_same item_a, res.last
+    end
+  end
+  
+  describe '#after' do
+    it 'returns an empty iterator when it contains no items' do
+      enum = eol.after
+      assert_raises(StopIteration) { enum.next }
+    end
+      
+    it 'iterates over all items' do
+      list.expect :increment, nil, [1]
+      eol.append item_a
+      list.expect :increment, nil, [1]
+      eol.append item_b
+      
+      res = eol.after.to_a
+      
+      assert_same item_a, res.first
+      assert_same item_b, res.last
+    end
+  end
 end

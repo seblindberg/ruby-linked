@@ -29,6 +29,8 @@ module Linked
         true
       end
       
+      # Inserts a
+      
       def append(sibling)
         if @prev == self
           super

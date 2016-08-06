@@ -75,5 +75,18 @@ module Linked
       return nil if empty?
       first.delete
     end
+    
+    # Iterates over each item in the list, either in normal or reverse order. If
+    # a block is not given an enumerator is returned.
+    #
+    # reverse - flips the iteration order if true.
+    
+    def each(reverse: false, &block)
+      if reverse
+        eol.before(&block)
+      else
+        eol.after(&block)
+      end
+    end
   end
 end

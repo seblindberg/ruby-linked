@@ -150,4 +150,27 @@ describe Linked::List do
       assert_nil list.shift
     end
   end
+  
+  describe '#each' do
+    before do
+      list.push item_a
+      list.push item_b
+    end
+    
+    it 'iterates over each item' do
+      res = []
+      list.each { |item| res << item }
+      
+      assert_same item_a, res.first
+      assert_same item_b, res.last
+    end
+    
+    it 'iterates over each item in reverse' do
+      res = []
+      list.each(reverse: true) { |item| res << item }
+      
+      assert_same item_b, res.first
+      assert_same item_a, res.last
+    end
+  end
 end
