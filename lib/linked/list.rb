@@ -193,6 +193,15 @@ module Linked
     end
     
     alias each each_item
+    
+    # Calls #freeze on all items in the list, as well as the head and the tail
+    # (eol).
+    
+    def freeze
+      eol.freeze
+      each_item(&:freeze)
+      super
+    end
 
     # Overrides the default inspect method to provide a more useful view of the
     # list.

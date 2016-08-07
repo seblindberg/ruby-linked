@@ -518,6 +518,15 @@ describe Linked::Item do
     end
   end
   
+  describe '#freeze' do
+    it 'freezes the value' do
+      item.value = 'mutable'
+      item.freeze
+      
+      assert_raises(RuntimeError) { item.value.chop! }
+    end
+  end
+  
   describe '#inspect' do
     it 'includes the class name' do
       refute_nil item.inspect[item.class.name]

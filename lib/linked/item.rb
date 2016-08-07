@@ -325,6 +325,13 @@ module Linked
       end
     end
     
+    # Freezes the value, as well as making the list item itself immutable.
+    
+    def freeze
+      value.freeze
+      super
+    end
+    
     # The default #inspect method becomes very cluttered the moment you start
     # liking objects together. This implementation fixes that and only shows the
     # class name, object id and value (if set).

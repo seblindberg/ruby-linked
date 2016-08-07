@@ -297,6 +297,25 @@ describe Linked::List do
     end
   end
   
+  describe '#freeze' do
+    it 'freezes all list items' do
+      list.push item_a
+      list.push item_b
+      
+      list.freeze
+
+      assert item_a.frozen?
+      assert item_b.frozen?
+    end
+    
+    it 'makes the list immutable' do
+      list.push item_a
+      list.freeze
+      assert_raises(RuntimeError) { list.push item_b }
+      assert_raises(RuntimeError) { item_a.append item_b }
+    end
+  end
+  
   describe '#inspect' do
     before do
       item_a.value = 'a'
