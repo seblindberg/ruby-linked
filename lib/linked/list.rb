@@ -13,14 +13,27 @@ module Linked
   #     def initialize
   #       super
   #       ...
+  #
+  # A key implementation detail is the End-Of-List, or EOL object that sits
+  # between the list and the actual list items. It provides separation between
+  # the list and the actual list items.
   
   module List
     include Enumerable
     
+    # Private accessor method for the End-Of-List object.
+    #
+    # Returns a List::EOL object.
+    
     attr_reader :eol
     private :eol
     
+    # Returns an object that responds to #next= and #prepend.
+    
     alias head eol
+    
+    # Returns an object that responds to #prev= and #append.
+    
     alias tail eol
     
     # Initializes the list by setting the two instance variable @item_count and

@@ -8,6 +8,15 @@ module Linked
     # calls to #nil?, signifies the end of a list of Items. In both directions
     # as a matter of fact, which is why the head and tail objects defined by
     # Item is combined into one.
+    #
+    # In a nutshell, the structure looks something like this:
+    #
+    #   +-------------------- EOL --------------------+
+    #   | (head)                               (tail) |
+    #   +---------------------------------------------+
+    #     ^ +-- Item 1 ---+         +-- Item N ---+ ^
+    #     +-| prev | next |<- ... ->| prev | next |-+
+    #       +------+------+         +------+------+
     
     class EOL < Item
       private :value, :value=, :delete, :first?, :last?

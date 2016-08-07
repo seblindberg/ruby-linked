@@ -13,13 +13,28 @@ module Linked
   # #shrink. The latter facilitate counting of the items and will be called
   # everytime an item is appended, prepended or deleted. #head and #tail are
   # expected to return two objects that, respectivly
-  # a) responds to #next= and #prev= respectivly and
+  # a) responds to #next= and #append, or #prev= and #prepend and
   # b) returns true for #nil?.
   
   class Item
-    attr_accessor :list, :value
+    # Access the list (if any) that the item belongs to. Writing to this
+    # attribute is protected and should be avoided.
+    #
+    # Returns the item's list, or nil
+    
+    attr_accessor :list
+    protected :list=
+    
+    # The Item can hold an arbitrary object as its value and it will stay with
+    # the item.
+    
+    attr_accessor :value
+    
+    # Calling either #prev= or #next= directly is not recommended, since can
+    # corrupt the chain.
+    
     attr_writer :prev, :next
-    protected :prev=, :next=, :list=
+    protected :prev=, :next=
     
     # Creates a new item. If a list is given the item will be considered a part
     # of that list and appended to the end of it.
