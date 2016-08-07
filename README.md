@@ -24,7 +24,32 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'linked'
+
+# Include the List module in a class
+class ListLike
+  include Linked::List    
+end
+
+# Create a list
+list = ListLike.new
+
+# Append values
+list << :value
+list << 'value'
+
+# Or create list items manually
+item = Linked::Item.new 42
+list.unshift item
+
+# Remove items with #pop and #shift
+list.pop.value => 'value'
+
+# The list behaves much like an Array
+list.count # => 2
+list.map(&:value) # => [42, :value]
+```
 
 ## Development
 
