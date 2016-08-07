@@ -54,6 +54,21 @@ module Linked
         @prev = nil
       end
     end
+    
+    # Calling #dup on an item returns a copy that is no longer connected to the
+    # original item chain, or the list. The value will also be copied.
+    #
+    # Returns a new Item.
+    
+    def initialize_dup(source)
+      @next = @prev = @list = nil
+      @value = begin
+                 source.value.dup
+               rescue TypeError
+                 source.value
+               end
+      super
+    end
 
     # Check if this is the first item in the list. It is crucial that tail#nil?
     # returns true for the first item to be identified correctly.

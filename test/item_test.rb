@@ -479,4 +479,42 @@ describe Linked::Item do
       assert_equal 2, res.length
     end
   end
+  
+  describe '#dup' do
+    it 'disconnects the new item from its siblings' do
+      item_a.append(item_b).append(item_c)
+      duped_item = item_b.dup
+      
+      assert_nil duped_item.prev!
+      assert_nil duped_item.next!
+    end
+    
+    it 'disconects the new item from its list' do
+      list.expect :grow, nil, [2]
+      tail.expect :prev=, nil, [item_c]
+      
+      item_b.append item_c
+      item_in_list.append item_b
+      
+      assert_nil item_b.dup.list
+    end
+    
+    it 'calls #dup on the value' do
+      value = Minitest::Mock.new
+      value.expect :dup, nil
+      
+      item.value = value
+      item.dup
+      
+      value.verify
+    end
+    
+    it 'accepts undupable values' do
+      value = Minitest::Mock.new
+      value.expect(:dup, nil) { raise TypeError }
+      
+      item.value = value
+      item.dup
+    end
+  end
 end
