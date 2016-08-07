@@ -4,7 +4,13 @@
 [![Coverage Status](https://coveralls.io/repos/github/seblindberg/ruby-linked/badge.svg?branch=master)](https://coveralls.io/github/seblindberg/ruby-linked?branch=master)
 [![Inline docs](http://inch-ci.org/github/seblindberg/ruby-linked.svg?branch=master)](http://inch-ci.org/github/seblindberg/ruby-linked)
 
-Yet another Linked List implementation for Ruby (hence the somewhat awkward name). The library is still under development.
+Yet another Linked List implementation for Ruby (hence the somewhat awkward name). The library is still under development. The intention is to
+
+1. nail down the functionality,
+2. start porting the methods over to c and finally
+3. try to optimize for speed, as much as possible.
+
+The project is still in phase 1.
 
 ## Installation
 
@@ -23,6 +29,8 @@ Or install it yourself as:
     $ gem install linked
 
 ## Usage
+
+A basic use case is show below. For more details, for now, see the docs.
 
 ```ruby
 require 'linked'
@@ -44,7 +52,7 @@ item = Linked::Item.new 42
 list.unshift item
 
 # Remove items with #pop and #shift
-list.pop.value => 'value'
+list.pop.value # => 'value'
 
 # The list behaves much like an Array
 list.count # => 2
