@@ -17,43 +17,43 @@ module Linked
   # A key implementation detail is the End-Of-List, or EOL object that sits
   # between the list and the actual list items. It provides separation between
   # the list and the actual list items.
-  
+
   module List
     include Enumerable
-    
+
     # Private accessor method for the End-Of-List object.
     #
     # Returns a List::EOL object.
-    
+
     attr_reader :eol
     private :eol
-    
+
     # Returns an object that responds to #next= and #prepend.
-    
+
     alias head eol
-    
+
     # Returns an object that responds to #prev= and #append.
-    
+
     alias tail eol
-    
+
     # Initializes the list by setting the two instance variable @item_count and
     # @eol. It is important that this method be called during the initialization
     # of the including class, and that the instance variables never be accessed
     # directly.
-    
+
     def initialize(*)
       super
-      
+
       @eol = EOL.new list: self
       @item_count = 0
     end
-    
+
     # Access the first n item(s) in the list.
     #
     # n - the number of items to return.
     #
     # Returns the first item, or an array of items if n > 1.
-    
+
     def first(*args)
       if args.empty?
         eol.next!
@@ -61,7 +61,7 @@ module Linked
         super
       end
     end
-    
+
     # Access the last n item(s) in the list. When n > 1 the resulting array of
     # items will have their order preserved.
     #
@@ -71,29 +71,29 @@ module Linked
     # n - the number of items to return.
     #
     # Returns the last item, or an array of items if n > 1.
-    
+
     def last(n = 1)
       if n == 1
         eol.prev!
       else
         raise ArgumentError, 'n cannot be negative' if n < 0
-        
+
         n = count if n > count
         res = Array.new n
-        
+
         return res if n == 0
-        
+
         item = eol.prev!
         loop do
           n -= 1
           res[n] = item
           item = item.prev
         end
-        
+
         res
       end
     end
-    
+
     # Overrides the Enumerable#count method when given no argument to provide a
     # fast item count. Instead of iterating over each item, the internal item
     # count is returned.
@@ -101,7 +101,7 @@ module Linked
     # args - see Enumerable#count
     #
     # Returns the number of items counted.
-    
+
     def count(*args)
       if args.empty? && !block_given?
         @item_count
@@ -109,13 +109,13 @@ module Linked
         super
       end
     end
-    
+
     # Returns true if the list does not contain any items.
-    
+
     def empty?
       @item_count == 0
     end
-    
+
     # Insert an item at the end of the list. If the given object is not an Item,
     # or a decendant of Item, it will be treated as a value. Depending on the
     # state of the list the value will be
@@ -125,23 +125,23 @@ module Linked
     # item - the item to insert, or an arbitrary value.
     #
     # Returns self.
-    
+
     def push(item)
       eol.append item
       self
     end
-    
+
     alias << push
-    
+
     # Pop the last item off the list.
     #
     # Returns the last item in the list, or nil if the list is empty.
-    
+
     def pop
       return nil if empty?
       last.delete
     end
-    
+
     # Insert an item at the beginning of the list. If the given object is not an
     # Item, or a decendant of Item, it will be treated as a value. Depending on
     # the state of the list the value will be
@@ -151,26 +151,26 @@ module Linked
     # item - the item to insert, or an arbitrary value.
     #
     # Returns self.
-    
+
     def unshift(item)
       eol.prepend item
       self
     end
-    
+
     # Shift the first item off the list.
     #
     # Returns the first item in the list, or nil if the list is empty.
-    
+
     def shift
       return nil if empty?
       first.delete
     end
-    
+
     # Iterates over each item in the list, either in normal or reverse order. If
     # a block is not given an enumerator is returned.
     #
     # reverse - flips the iteration order if true.
-    
+
     def each(reverse: false, &block)
       if reverse
         eol.before(&block)
@@ -178,25 +178,25 @@ module Linked
         eol.after(&block)
       end
     end
-    
+
     # Internal method to grow the list with n elements. Never call this method
     # without also inserting the n elements.
     #
     # n - the number of items that has been/will be added to the list.
     #
     # Returns updated the item count.
-    
+
     private def grow(n = 1)
       @item_count += n
     end
-    
+
     # Internal method to shrink the list with n elements. Never call this method
     # without also deleting the n elements.
     #
     # n - the number of items that has been/will be removed from the list.
     #
     # Returns updated the item count.
-    
+
     private def shrink(n = 1)
       @item_count -= n
     end

@@ -17,27 +17,27 @@ module Linked
     #     ^ +-- Item 1 ---+         +-- Item N ---+ ^
     #     +-| prev | next |<- ... ->| prev | next |-+
     #       +------+------+         +------+------+
-    
+
     class EOL < Item
       private :value, :value=, :delete, :first?, :last?
-      
+
       def initialize(list:)
         super()
         @list = list
         @prev = @next = self
       end
-      
+
       # EOL objects will return true when asked if they are nil. This is
       # foremost an implementation detail to comply with the requirements of the
       # Item class, but also logical in the sense that end-of-list objects are
       # not really part of the list, and should therefore be considered nil.
       #
       # Returns true.
-      
+
       def nil?
         true
       end
-      
+
       # Inserts one or more items at the end of the list. If the given object is
       # not an Item, or a decendant of Item, it will be treated as a value.
       # Depending on the state of the list the value will be
@@ -48,7 +48,7 @@ module Linked
       #
       # Returns the item that was appended. In case of a string of items the
       # last one is returned.
-      
+
       def append(sibling)
         if @prev == self
           sibling = Item.new sibling unless sibling.is_a? Item
@@ -57,7 +57,7 @@ module Linked
           @prev.append sibling
         end
       end
-      
+
       # Inserts one or more items at the beginning of the list. If the given
       # object is not an Item, or a decendant of Item, it will be treated as a
       # value. Depending on the state of the list the value will be
@@ -68,7 +68,7 @@ module Linked
       #
       # Returns the item that was prepended. In case of a string of items the
       # first one is returned.
-      
+
       def prepend(sibling)
         if @next == self
           sibling = Item.new sibling unless sibling.is_a? Item

@@ -15,27 +15,27 @@ module Linked
   # expected to return two objects that, respectivly
   # a) responds to #next= and #append, or #prev= and #prepend and
   # b) returns true for #nil?.
-  
+
   class Item
     # Access the list (if any) that the item belongs to. Writing to this
     # attribute is protected and should be avoided.
     #
     # Returns the item's list, or nil
-    
+
     attr_accessor :list
     protected :list=
-    
+
     # The Item can hold an arbitrary object as its value and it will stay with
     # the item.
-    
+
     attr_accessor :value
-    
+
     # Calling either #prev= or #next= directly is not recommended, since can
     # corrupt the chain.
-    
+
     attr_writer :prev, :next
     protected :prev=, :next=
-    
+
     # Creates a new item. If a list is given the item will be considered a part
     # of that list and appended to the end of it.
     #
@@ -43,7 +43,7 @@ module Linked
     # list - an object responding to #head and #tail.
     #
     # Returns a new Item.
-    
+
     def initialize(value = nil, list: nil)
       @value = value
       @list = list
@@ -54,25 +54,25 @@ module Linked
         @prev = nil
       end
     end
-    
+
     # Check if this is the first item in the list. It is crucial that tail#nil?
     # returns true for the first item to be identified correctly.
     #
     # Returns true if no item come before this one.
-    
+
     def first?
       @prev.nil?
     end
-    
+
     # Check if this is the last item in the list. It is crucial that head#nil?
     # returns true for the last item to be identified correctly.
     #
     # Returns true if no item come after this one.
-    
+
     def last?
       @next.nil?
     end
-    
+
     # Access the next item in the list. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.
     #
@@ -82,21 +82,21 @@ module Linked
     #   end
     #
     # Returns the item that come after this.
-    
+
     def next
       raise StopIteration if last?
       @next
     end
-    
+
     # Unsafe accessor of the next item in the list. It is preferable to use
     # #next.
     #
     # Returns the item that come after this, or nil if this is the last one.
-    
+
     def next!
       @next
     end
-    
+
     # Access the previous item in the list. If this is the first one a
     # StopIteration will be raised, so that items may be iterated over safely in
     # a loop.
@@ -107,25 +107,25 @@ module Linked
     #   end
     #
     # Returns the item that come before this.
-    
+
     def prev
       raise StopIteration if first?
       @prev
     end
-    
+
     alias previous prev
-    
+
     # Unsafe accessor of the previous item in the list. It is preferable to use
     # #prev.
     #
     # Returns the item that come before this, or nil if this is the first one.
-    
+
     def prev!
       @prev
     end
-    
+
     alias previous! prev!
-    
+
     # Split the chain of items in two. If the chain belongs to a list this item
     # and all that stay connected to it will continue to belong to it, while the
     # rest are removed from it.
@@ -142,7 +142,7 @@ module Linked
     # after - determine wheter to split the chain before or after this item.
     #
     # Returns self.
-    
+
     def split after: false
       if after
         unless last?
@@ -152,7 +152,7 @@ module Linked
               item = item.next
               item.list = nil
             end
-            
+
             tail = @list.tail
             tail.prev = self
             @next = tail
@@ -170,7 +170,7 @@ module Linked
               item = item.prev
               item.list = nil
             end
-            
+
             head = @list.head
             head.next = self
             @prev = head
@@ -181,10 +181,10 @@ module Linked
           end
         end
       end
-      
+
       self
     end
-    
+
     # Inserts the given item between this one and the one after it (if any). If
     # the given item is part of a chain, all items following it will be moved to
     # this one, and added to the list if one is set.
@@ -200,30 +200,30 @@ module Linked
     #           item.
     #
     # Returns the last item that was appended.
-    
+
     def append(sibling)
       if sibling.is_a? Item
         sibling.split
       else
         sibling = self.class.new sibling
       end
-      
+
       sibling.prev = self
       after_sibling = @next
       @next = sibling
-      
+
       count = 1 + loop.count do
         sibling.list = @list
         sibling = sibling.next
       end
-      
+
       @list.send :grow, count if @list
-      
+
       sibling.next = after_sibling
       after_sibling.prev = sibling if after_sibling
       sibling
     end
-    
+
     # Inserts the given item between this one and the one before it (if any). If
     # the given item is part of a chain, all items preceeding it will be moved
     # to this one, and added to the list if one is set.
@@ -239,30 +239,30 @@ module Linked
     #           new item.
     #
     # Returns the last item that was prepended.
-    
+
     def prepend(sibling)
       if sibling.is_a? Item
         sibling.split after: true
       else
         sibling = self.class.new sibling
       end
-      
+
       sibling.next = self
       before_sibling = @prev
       @prev = sibling
-      
+
       count = 1 + loop.count do
         sibling.list = @list
         sibling = sibling.prev
       end
-      
+
       @list.send :grow, count if @list
-      
+
       sibling.prev = before_sibling
       before_sibling.next = sibling if before_sibling
       sibling
     end
-    
+
     # Remove an item from the chain. If this item is part of a list and is
     # either first, last or both in that list, #next= and #prev= will be called
     # on the list head and tail respectivly.
@@ -270,40 +270,40 @@ module Linked
     # If this item is part of a list #shrink will be called on it.
     #
     # Returns self.
-    
+
     def delete
       @next.prev = @prev if @next
       @prev.next = @next if @prev
       @list.send :shrink if @list
-      
+
       @next = @prev = @list = nil
       self
     end
-    
+
     # Iterates over each item before this, in reverse order. If a block is not
     # given an enumerator is returned.
-    
+
     def before
       return to_enum(__callee__) unless block_given?
       return if first?
-      
+
       item = self.prev
-      
+
       loop do
         yield item
         item = item.prev
       end
     end
-    
+
     # Iterates over each item after this. If a block is not given an enumerator
     # is returned.
-    
+
     def after
       return to_enum(__callee__) unless block_given?
       return if last?
-      
+
       item = self.next
-      
+
       loop do
         yield item
         item = item.next

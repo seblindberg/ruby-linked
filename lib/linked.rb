@@ -4,7 +4,7 @@ require 'linked/list/eol'
 require 'linked/list'
 
 module Linked
-  module_function def List(object)
-    
+  def self.List(object)
+
   end
 end
