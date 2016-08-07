@@ -1,37 +1,99 @@
 module Linked
   module List
-    attr_reader :eol, :count
+    include Enumerable
+    
+    attr_reader :eol
+    private :eol
+    
+    # Initializes the list by setting the two instance variable @item_count and
+    # @eol. It is important that this method be called during the initialization
+    # of the including class, and that the instance variables never be accessed
+    # directly.
     
     def initialize(*)
       super
       
       @eol = EOL.new list: self
-      @count = 0
+      @item_count = 0
     end
     
     alias head eol
     alias tail eol
     
-    def first
-      eol.next!
+    # Access the first n item(s) in the list.
+    #
+    # n - the number of items to return.
+    #
+    # Returns the first item, or an array of items if n > 1.
+    
+    def first(*args)
+      if args.empty?
+        eol.next!
+      else
+        super
+      end
     end
     
-    def last
-      eol.prev!
+    # Access the last n item(s) in the list. When n > 1 the resulting array of
+    # items will have their order preserved.
+    #
+    # When n is zero an empty array will be returned, in order to comply with
+    # the behaviour of #first. Negative values will raise an ArgumentError.
+    #
+    # n - the number of items to return.
+    #
+    # Returns the last item, or an array of items if n > 1.
+    
+    def last(n = 1)
+      if n == 1
+        eol.prev!
+      else
+        raise ArgumentError, 'n cannot be negative' if n < 0
+        
+        n = count if n > count
+        res = Array.new n
+        
+        return res if n == 0
+        
+        item = eol.prev!
+        loop do
+          n -= 1
+          res[n] = item
+          item = item.prev
+        end
+        
+        res
+      end
+    end
+    
+    # Overrides the Enumerable#count method when given no argument to provide a
+    # fast item count. Instead of iterating over each item, the internal item
+    # count is returned.
+    #
+    # args - see Enumerable#count
+    #
+    # Returns the number of items counted.
+    
+    def count(*args)
+      if args.empty? && !block_given?
+        @item_count
+      else
+        super
+      end
     end
     
     protected def increment(n)
-      @count += n
+      @item_count += n
     end
     
     protected def decrement
-      @count -= 1
+      @item_count -= 1
     end
     
     # Returns true if the list does not contain any items.
     
     def empty?
-      @count == 0
+      @item_count == 0
     end
     
     # Insert an item at the end of the list.

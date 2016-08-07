@@ -13,15 +13,103 @@ describe Linked::List do
   let(:item_a) { Linked::Item.new }
   let(:item_b) { Linked::Item.new }
   
+  it 'includes Enumerable' do
+    assert subject.ancestors.include? Enumerable
+  end
+  
   describe '#first' do
     it 'returns nil for empty lists' do
       assert_nil list.first
+    end
+    
+    it 'returns the first item' do
+      list.push item
+      assert_same item, list.first
+    end
+    
+    it 'supports fetching multiple items' do
+      list.push item_a
+      list.push item_b
+      
+      res = list.first 2
+      
+      assert_same item_a, res[0]
+      assert_same item_b, res[1]
+    end
+    
+    it 'only returns the maximum number of items' do
+      list.push item_a
+      list.push item_b
+      
+      res = list.first 3
+      
+      assert_equal 2, res.length
     end
   end
   
   describe '#last' do
     it 'returns nil for empty lists' do
       assert_nil list.last
+    end
+    
+    it 'returns the first item' do
+      list.push item
+      assert_same item, list.last
+    end
+    
+    it 'returns an empty array when given 0' do
+      assert_equal [], list.last(0)
+    end
+    
+    it 'supports fetching multiple items' do
+      list.push item_a
+      list.push item_b
+      
+      res = list.last 2
+      
+      assert_same item_a, res[0]
+      assert_same item_b, res[1]
+    end
+    
+    it 'only returns the maximum number of items' do
+      list.push item_a
+      list.push item_b
+      
+      res = list.last 3
+      
+      assert_equal 2, res.length
+    end
+    
+    it 'raises an ArgumentError for negative ammounts' do
+      assert_raises(ArgumentError) { list.last(-1) }
+    end
+  end
+  
+  describe '#count' do
+    it 'returns the number of items' do
+      list.push item_a
+      list.push item_b
+
+      assert_equal 2, list.count
+    end
+    
+    it 'accepts an argument' do
+      list.push item_a
+      list.push item_b
+      
+      assert_equal 1, list.count(item_b)
+    end
+    
+    it 'accepts a block' do
+      item_a.value = 1
+      item_b.value = 2
+      
+      list.push item_a
+      list.push item_b
+      
+      count = list.count { |item| item.value > 1 }
+      
+      assert_equal 1, count
     end
   end
   
