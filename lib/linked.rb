@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'linked/version'
 require 'linked/item'
 require 'linked/list/eol'
