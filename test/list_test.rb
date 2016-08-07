@@ -1,9 +1,5 @@
 require 'test_helper'
 
-class ListLike
-  include Linked::List
-end
-
 describe Linked::List do
   subject { ListLike }
   
