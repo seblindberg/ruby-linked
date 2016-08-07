@@ -29,19 +29,41 @@ module Linked
         true
       end
       
-      # Inserts a
+      # Inserts one or more items at the end of the list. If the given object is
+      # not an Item, or a decendant of Item, it will be treated as a value.
+      # Depending on the state of the list the value will be
+      # a) wraped in a new instance of Item if the list is empty or
+      # b) wraped in an object of the same class as the last item in the list.
+      #
+      # sibling - the item or value to be appended.
+      #
+      # Returns the item that was appended. In case of a string of items the
+      # last one is returned.
       
       def append(sibling)
         if @prev == self
-          super
+          sibling = Item.new sibling unless sibling.is_a? Item
+          super sibling
         else
           @prev.append sibling
         end
       end
       
+      # Inserts one or more items at the beginning of the list. If the given
+      # object is not an Item, or a decendant of Item, it will be treated as a
+      # value. Depending on the state of the list the value will be
+      # a) wraped in a new instance of Item if the list is empty or
+      # b) wraped in an object of the same class as the last item in the list.
+      #
+      # sibling - the item or value to be prepended.
+      #
+      # Returns the item that was prepended. In case of a string of items the
+      # first one is returned.
+      
       def prepend(sibling)
         if @next == self
-          super
+          sibling = Item.new sibling unless sibling.is_a? Item
+          super sibling
         else
           @next.prepend sibling
         end

@@ -45,6 +45,18 @@ describe Linked::List::EOL do
       assert_same item_a, eol.next
       list.verify
     end
+    
+    it 'trats an arbitrary object as a value' do
+      list.expect :increment, nil, [1]
+      eol.append :value
+      
+      assert_equal :value, eol.next.value
+      
+      list.expect :increment, nil, [1]
+      eol.append :value_2
+      
+      assert_equal :value_2, eol.prev.value
+    end
   end
   
   describe '#prepend' do
@@ -76,6 +88,18 @@ describe Linked::List::EOL do
       assert_same item_b, eol.prev
       assert_same item_a, eol.next
       list.verify
+    end
+    
+    it 'trats an arbitrary object as a value' do
+      list.expect :increment, nil, [1]
+      eol.prepend :value
+      
+      assert_equal :value, eol.prev.value
+      
+      list.expect :increment, nil, [1]
+      eol.prepend :value_2
+      
+      assert_equal :value_2, eol.next.value
     end
   end
   

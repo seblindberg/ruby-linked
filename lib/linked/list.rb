@@ -1,9 +1,27 @@
+# List
+#
+# This module can be included in any class to give it list like behaviour. Most
+# importantly, the methods #head, #tail, #increment and #decrement will be
+# implemented to comply with the requirements defined by Item.
+#
+# Example
+#
+#   class ListLike
+#     include Linked::List
+#
+#     def initialize
+#       super
+#       ...
+
 module Linked
   module List
     include Enumerable
     
     attr_reader :eol
     private :eol
+    
+    alias head eol
+    alias tail eol
     
     # Initializes the list by setting the two instance variable @item_count and
     # @eol. It is important that this method be called during the initialization
@@ -16,9 +34,6 @@ module Linked
       @eol = EOL.new list: self
       @item_count = 0
     end
-    
-    alias head eol
-    alias tail eol
     
     # Access the first n item(s) in the list.
     #
@@ -96,9 +111,13 @@ module Linked
       @item_count == 0
     end
     
-    # Insert an item at the end of the list.
+    # Insert an item at the end of the list. If the given object is not an Item,
+    # or a decendant of Item, it will be treated as a value. Depending on the
+    # state of the list the value will be
+    # a) wraped in a new instance of Item if the list is empty or
+    # b) wraped in an object of the same class as the last item in the list.
     #
-    # item - the Item to insert.
+    # item - the item to insert, or an arbitrary value.
     #
     # Returns self.
     
@@ -118,9 +137,13 @@ module Linked
       last.delete
     end
     
-    # Insert an item at the beginning of the list.
+    # Insert an item at the beginning of the list. If the given object is not an
+    # Item, or a decendant of Item, it will be treated as a value. Depending on
+    # the state of the list the value will be
+    # a) wraped in a new instance of Item if the list is empty or
+    # b) wraped in an object of the same class as the last item in the list.
     #
-    # item - the Item to insert.
+    # item - the item to insert, or an arbitrary value.
     #
     # Returns self.
     

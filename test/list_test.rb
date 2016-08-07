@@ -128,6 +128,14 @@ describe Linked::List do
       assert_same list, ret
     end
     
+    it 'accepts an arbitrary value' do
+      list.push :value_1
+      list.push :value_2
+      
+      assert_equal :value_1, list.first.value
+      assert_equal :value_2, list.last.value
+    end
+    
     it 'inserts multiple items' do
       list.push item_a
       list.push item_b
@@ -193,6 +201,14 @@ describe Linked::List do
     it 'returns self' do
       ret = list.unshift item
       assert_same list, ret
+    end
+    
+    it 'accepts an arbitrary value' do
+      list.unshift :value_1
+      list.unshift :value_2
+      
+      assert_equal :value_2, list.first.value
+      assert_equal :value_1, list.last.value
     end
     
     it 'inserts multiple items' do
