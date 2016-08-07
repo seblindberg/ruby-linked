@@ -3,13 +3,13 @@
 # This class implements doubly linked list items, designed to work both on their
 # own and as children of list.
 #
-#  +------+    +------+------+            +------+
+#  +- - - +    +------+------+            +- - - +
 #  | Head | <--| prev | next |--> ... --> | Tail |
-#  +------+    +------+------+            +------+
+#  + - - -+    +------+------+            + - - -+
 # (optional)     First Item     N Items  (optional)
 #
-# An object is considered a list if it responds to #head, #tail, #increment and
-# #decrement. The latter facilitate counting of the items and will be called
+# An object is considered a list if it responds to #head, #tail, #grow and
+# #shrink. The latter facilitate counting of the items and will be called
 # everytime an item is appended, prepended or deleted. #head and #tail are
 # expected to return two objects that, respectivly
 # a) responds to #next= and #prev= respectivly and
@@ -141,7 +141,7 @@ module Linked
             tail = @list.tail
             tail.prev = self
             @next = tail
-            @list.decrement count
+            @list.shrink count
           else
             @next.prev = nil
             @next = nil
@@ -159,7 +159,7 @@ module Linked
             head = @list.head
             head.next = self
             @prev = head
-            @list.decrement count
+            @list.shrink count
           else
             @prev.next = nil
             @prev = nil
@@ -177,7 +177,7 @@ module Linked
     # Alternativly the argument can be an arbitrary object, in which case a new
     # item will be created around it.
     #
-    # If this item is part of a list #increment will be called on it with the
+    # If this item is part of a list #grow will be called on it with the
     # number of added items as an argument. Should it also be the last item
     # #prev= will be called on the list tail.
     #
@@ -202,7 +202,7 @@ module Linked
         sibling = sibling.next
       end
       
-      @list.send :increment, count if @list
+      @list.send :grow, count if @list
       
       sibling.next = after_sibling
       after_sibling.prev = sibling if after_sibling
@@ -216,7 +216,7 @@ module Linked
     # Alternativly the argument can be an arbitrary object, in which case a new
     # item will be created around it.
     #
-    # If this item is part of a list #increment will be called on it with the
+    # If this item is part of a list #grow will be called on it with the
     # number of added items as an argument. Should it also be the first item
     # #next= will be called on the list head.
     #
@@ -241,7 +241,7 @@ module Linked
         sibling = sibling.prev
       end
       
-      @list.send :increment, count if @list
+      @list.send :grow, count if @list
       
       sibling.prev = before_sibling
       before_sibling.next = sibling if before_sibling
@@ -252,14 +252,14 @@ module Linked
     # either first, last or both in that list, #next= and #prev= will be called
     # on the list head and tail respectivly.
     #
-    # If this item is part of a list #decrement will be called on it.
+    # If this item is part of a list #shrink will be called on it.
     #
     # Returns self.
     
     def delete
       @next.prev = @prev if @next
       @prev.next = @next if @prev
-      @list.send :decrement if @list
+      @list.send :shrink if @list
       
       @next = @prev = @list = nil
       self

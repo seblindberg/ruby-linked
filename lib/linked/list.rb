@@ -1,8 +1,8 @@
 # List
 #
 # This module can be included in any class to give it list like behaviour. Most
-# importantly, the methods #head, #tail, #increment and #decrement will be
-# implemented to comply with the requirements defined by Item.
+# importantly, the methods #head, #tail, #grow and #shrink are implemented to
+# comply with the requirements defined by Item.
 #
 # Example
 #
@@ -97,14 +97,6 @@ module Linked
       end
     end
     
-    protected def increment(n)
-      @item_count += n
-    end
-    
-    protected def decrement
-      @item_count -= 1
-    end
-    
     # Returns true if the list does not contain any items.
     
     def empty?
@@ -172,6 +164,28 @@ module Linked
       else
         eol.after(&block)
       end
+    end
+    
+    # Internal method to grow the list with n elements. Never call this method
+    # without also inserting the n elements.
+    #
+    # n - the number of items that has been/will be added to the list.
+    #
+    # Returns updated the item count.
+    
+    private def grow(n = 1)
+      @item_count += n
+    end
+    
+    # Internal method to shrink the list with n elements. Never call this method
+    # without also deleting the n elements.
+    #
+    # n - the number of items that has been/will be removed from the list.
+    #
+    # Returns updated the item count.
+    
+    private def shrink(n = 1)
+      @item_count -= n
     end
   end
 end

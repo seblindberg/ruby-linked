@@ -189,7 +189,7 @@ describe Linked::Item do
     it 'removes the items before when in a list' do
       item_a = subject.new list: list
       
-      list.expect :increment, nil, [2]
+      list.expect :grow, nil, [2]
       tail.expect :prev=, nil, [item_c]
       
       item_a.append item_b # which is already linked to item_c
@@ -199,7 +199,7 @@ describe Linked::Item do
       # Now a, b and c are part of a list
       
       list.expect :head, head
-      list.expect :decrement, nil, [1]
+      list.expect :shrink, nil, [1]
       head.expect :nil?, true
       head.expect :next=, nil, [item_b]
       
@@ -214,7 +214,7 @@ describe Linked::Item do
     it 'removes the items after when in a list and after: true' do
       item_a = subject.new list: list
       
-      list.expect :increment, nil, [2]
+      list.expect :grow, nil, [2]
       tail.expect :prev=, nil, [item_c]
       
       item_a.append item_b # which is already linked to item_c
@@ -224,7 +224,7 @@ describe Linked::Item do
       # Now a, b and c are part of a list
       
       list.expect :tail, tail
-      list.expect :decrement, nil, [1]
+      list.expect :shrink, nil, [1]
       tail.expect :nil?, true
       tail.expect :prev=, nil, [item_b]
       
@@ -276,7 +276,7 @@ describe Linked::Item do
     end
     
     it 'calls #prev= on tail and #incerment on the list when last in one' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       tail.expect :prev=, nil, [sibling]
       
       item_in_list.append sibling
@@ -287,7 +287,7 @@ describe Linked::Item do
     end
     
     it 'inserts multiple connected items when in a list' do
-      list.expect :increment, nil, [2]
+      list.expect :grow, nil, [2]
       tail.expect :prev=, nil, [item_c]
       
       item_b.append item_c
@@ -344,7 +344,7 @@ describe Linked::Item do
     end
     
     it 'calls #next= on head and #incerment on the list when first in one' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       head.expect :next=, nil, [sibling]
       
       item_in_list.prepend sibling
@@ -355,7 +355,7 @@ describe Linked::Item do
     end
     
     it 'inserts multiple connected items when in a list' do
-      list.expect :increment, nil, [2]
+      list.expect :grow, nil, [2]
       head.expect :next=, nil, [item_a]
       
       item_b.prepend item_a
@@ -407,13 +407,13 @@ describe Linked::Item do
       assert item_c.first?
     end
     
-    it 'calls #next= on head and #decrement on list when first in a list' do
+    it 'calls #next= on head and #shrink on list when first in a list' do
       # First setup the item chain
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       tail.expect :prev=, nil, [sibling]
       item_in_list.append sibling
       
-      list.expect :decrement, nil
+      list.expect :shrink, nil
       head.expect :next=, nil, [sibling]
       item_in_list.delete
       head.verify
@@ -422,11 +422,11 @@ describe Linked::Item do
     
     it 'calls #prev= on tail when last in a list' do
       # First setup the item chain
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       head.expect :next=, nil, [sibling]
       item_in_list.prepend sibling
       
-      list.expect :decrement, nil
+      list.expect :shrink, nil
       tail.expect :prev=, nil, [sibling]
       item_in_list.delete
       tail.verify
@@ -434,7 +434,7 @@ describe Linked::Item do
     end
     
     it 'calls both #next= and #prev= when deleting a single item' do
-      list.expect :decrement, nil
+      list.expect :shrink, nil
       head.expect :next=, nil, [tail]
       tail.expect :prev=, nil, [head]
       item_in_list.delete

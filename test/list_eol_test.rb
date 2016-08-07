@@ -8,10 +8,10 @@ describe Linked::List::EOL do
   let(:item_a) { Linked::Item.new }
   let(:item_b) { Linked::Item.new }
   let(:eol) { subject.new list: list }
-  let(:eol_with_item) { list.expect :increment, nil, [1]; eol.append item; eol }
+  let(:eol_with_item) { list.expect :grow, nil, [1]; eol.append item; eol }
   let(:eol_whit_items) do
     item_a.append item_b
-    list.expect :increment, nil, [2]
+    list.expect :grow, nil, [2]
     eol.append item_a
     eol
   end
@@ -52,7 +52,7 @@ describe Linked::List::EOL do
 
   describe '#append' do
     it 'inserts an item when it is empty' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.append item
       
       assert_same item, eol.prev
@@ -61,10 +61,10 @@ describe Linked::List::EOL do
     end
     
     it 'inserts an item when it is not empty' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.append item_a
       
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.append item_b
       
       assert_same item_b, eol.prev
@@ -73,7 +73,7 @@ describe Linked::List::EOL do
     
     it 'inserts a string of items' do
       item_a.append item_b
-      list.expect :increment, nil, [2]
+      list.expect :grow, nil, [2]
       eol.append item_a
       
       assert_same item_b, eol.prev
@@ -82,12 +82,12 @@ describe Linked::List::EOL do
     end
     
     it 'treats an arbitrary object as a value' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.append :value
       
       assert_equal :value, eol.next.value
       
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.append :value_2
       
       assert_equal :value_2, eol.prev.value
@@ -96,7 +96,7 @@ describe Linked::List::EOL do
   
   describe '#prepend' do
     it 'inserts an item when it is empty' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.prepend item
       
       assert_same item, eol.prev
@@ -105,10 +105,10 @@ describe Linked::List::EOL do
     end
     
     it 'inserts an item when it is not empty' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.prepend item_b
       
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.prepend item_a
       
       assert_same item_b, eol.prev
@@ -117,7 +117,7 @@ describe Linked::List::EOL do
     
     it 'inserts a string of items' do
       item_b.prepend item_a
-      list.expect :increment, nil, [2]
+      list.expect :grow, nil, [2]
       eol.prepend item_b
       
       assert_same item_b, eol.prev
@@ -126,12 +126,12 @@ describe Linked::List::EOL do
     end
     
     it 'treats an arbitrary object as a value' do
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.prepend :value
       
       assert_equal :value, eol.prev.value
       
-      list.expect :increment, nil, [1]
+      list.expect :grow, nil, [1]
       eol.prepend :value_2
       
       assert_equal :value_2, eol.next.value
