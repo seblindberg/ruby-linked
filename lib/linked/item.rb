@@ -187,7 +187,11 @@ module Linked
     # Returns the last item that was appended.
     
     def append(sibling)
-      sibling = self.class.new sibling unless sibling.is_a? Item
+      if sibling.is_a? Item
+        sibling.split
+      else
+        sibling = self.class.new sibling
+      end
       
       sibling.prev = self
       after_sibling = @next
@@ -222,7 +226,11 @@ module Linked
     # Returns the last item that was prepended.
     
     def prepend(sibling)
-      sibling = self.class.new sibling unless sibling.is_a? Item
+      if sibling.is_a? Item
+        sibling.split after: true
+      else
+        sibling = self.class.new sibling
+      end
       
       sibling.next = self
       before_sibling = @prev

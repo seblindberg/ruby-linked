@@ -266,7 +266,6 @@ describe Linked::Item do
     end
     
     it 'only inserts the items after the given one' do
-      skip
       item_a.append item_b
       item_b.append item_c
       
@@ -335,13 +334,12 @@ describe Linked::Item do
     end
     
     it 'only inserts the items before the given one' do
-      skip
       item_a.append item_b
       item_b.append item_c
       
       item.prepend item_b
       
-      assert item_c.first
+      assert item_c.first?
       assert_same item_b, item.prev
     end
     
