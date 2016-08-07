@@ -324,5 +324,16 @@ module Linked
         item = item.next
       end
     end
+    
+    # The default #inspect method becomes very cluttered the moment you start
+    # liking objects together. This implementation fixes that and only shows the
+    # class name, object id and value (if set).
+    
+    def inspect
+      return yield self if block_given?
+      
+      output = format '%s:0x%0x', self.class.name, object_id
+      value ? output + " value=#{value.inspect}" : output
+    end
   end
 end

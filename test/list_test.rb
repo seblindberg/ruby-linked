@@ -296,4 +296,28 @@ describe Linked::List do
       refute_same item_a.value, duped_list.first.value
     end
   end
+  
+  describe '#inspect' do
+    before do
+      item_a.value = 'a'
+      item_b.value = 'b'
+      
+      list.push item_a
+      list.push item_b
+    end
+    
+    it 'contains the output of the items' do
+      res = list.inspect
+      
+      refute_nil res[item_a.inspect]
+      refute_nil res[item_b.inspect]
+    end
+    
+    it 'accepts a block' do
+      res = list.inspect { |item| item.value }
+      
+      refute_nil res["├─╴a\n"]
+      refute_nil res['└─╴b']
+    end
+  end
 end

@@ -517,4 +517,28 @@ describe Linked::Item do
       item.dup
     end
   end
+  
+  describe '#inspect' do
+    it 'includes the class name' do
+      refute_nil item.inspect[item.class.name]
+    end
+    
+    it 'includes the object id' do
+      hex_id = format '0x%0x', item.object_id
+      refute_nil item.inspect[hex_id]
+    end
+    
+    it 'includes the value unless it is nil' do
+      assert_nil item.inspect['value=']
+      item.value = 'value'
+      refute_nil item.inspect['value="value"']
+    end
+    
+    it 'accepts a block' do
+      item.value = 'inspected'
+      res = item.inspect { |itm| itm.value }
+      
+      assert_equal item.value, res
+    end
+  end
 end

@@ -194,6 +194,27 @@ module Linked
     
     alias each each_item
 
+    # Overrides the default inspect method to provide a more useful view of the
+    # list.
+    #
+    # Importantly this implementation supports nested lists and will return a
+    # tree like structure.
+
+    def inspect(&block)
+      # Get the parents inspect output
+      res = [super]
+      
+      each_item do |item|
+        lines = item.inspect(&block).split "\n"
+        
+        res.push (item.last? ? '└─╴' : '├─╴') + lines.shift
+        padding = item.last? ? '   ' : '│  '
+        lines.each { |line| res.push padding + line }
+      end
+      
+      res.join("\n")
+    end
+
     # Internal method to grow the list with n elements. Never call this method
     # without also inserting the n elements.
     #
