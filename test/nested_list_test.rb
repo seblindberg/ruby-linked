@@ -39,7 +39,22 @@ describe 'Nesting Lists' do
     assert duped_item.first? && duped_item.last?
     assert_same item, sibling_a.next
     
+    assert_equal 2, duped_item.count
     refute_same child_a, duped_item.first
     assert_equal :a, duped_item.first.value
+  end
+  
+  it 'duplicates a child' do
+    item.append sibling_a
+    item << child_a
+    child_a << child_b
+    
+    duped_child_a = child_a.dup
+    
+    assert_nil duped_child_a.list
+    
+    assert_equal 1, duped_child_a.count
+    assert_kind_of subject, duped_child_a.first
+    refute_same child_b, duped_child_a.first
   end
 end

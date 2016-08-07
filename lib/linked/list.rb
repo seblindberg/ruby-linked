@@ -56,7 +56,7 @@ module Linked
       @eol = EOL.new list: self
       @item_count = 0
       
-      source.each { |item| push item.dup  }
+      source.each_item { |item| push item.dup  }
       
       super
     end
@@ -184,13 +184,15 @@ module Linked
     #
     # reverse - flips the iteration order if true.
 
-    def each(reverse: false, &block)
+    def each_item(reverse: false, &block)
       if reverse
         eol.before(&block)
       else
         eol.after(&block)
       end
     end
+    
+    alias each each_item
 
     # Internal method to grow the list with n elements. Never call this method
     # without also inserting the n elements.

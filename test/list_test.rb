@@ -255,7 +255,7 @@ describe Linked::List do
     end
   end
   
-  describe '#each' do
+  describe '#each_item' do
     before do
       list.push item_a
       list.push item_b
