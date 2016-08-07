@@ -15,10 +15,12 @@ describe Linked::Item do
   let(:tail) { Minitest::Mock.new }
   let(:list) do
     mock = Minitest::Mock.new
-    mock.expect :head, head
     mock.expect :tail, tail
-    head.expect(:next=, nil) { |_| true }
-    tail.expect(:prev=, nil) { |_| true }
+    tail.expect(:append, nil) do |item|
+      item.send :next=, tail
+      item.send :prev=, head
+      true
+    end
     mock
   end
   
@@ -28,21 +30,16 @@ describe Linked::Item do
       assert_equal :value, item.value
     end
     
-    it 'accepts a list object responding to #head and #tail' do
+    it 'accepts a list object responding to #tail' do
       item = nil
-      next_item = nil
-      prev_item = nil
-      
-      head.expect(:next=, nil) { |nxt| next_item = nxt }
-      tail.expect(:prev=, nil) { |prev| prev_item = prev }
       
       assert_silent { item = subject.new list: list }
       
       list.verify
+      tail.verify
       
-      refute_nil item
-      assert_same item, prev_item
-      assert_same item, next_item
+      assert_same tail.object_id, item.next!.object_id
+      assert_same head.object_id, item.prev!.object_id
     end
   end
     
@@ -149,7 +146,94 @@ describe Linked::Item do
   describe '#list' do
     it 'returns the list if one was given' do
       item = subject.new list: list
+      
       assert_equal list.object_id, item.list.object_id
+    end
+  end
+  
+  describe '#split' do
+    before do
+      item_a.append(item_b).append(item_c)
+    end
+    
+    it 'returns self' do
+      assert_same item, item.split
+    end
+    
+    it 'does nothing on the first item' do
+      assert_same item_a, item_a.split
+      assert_same item_b, item_a.next
+    end
+    
+    it 'does nothing on the last item with after: true' do
+      assert_same item_c, item_c.split(after: true)
+      assert_same item_b, item_c.prev
+    end
+    
+    it 'splits a chain of items in two' do
+      assert_same item_b, item_b.split
+      assert_nil item_a.next!
+      assert_nil item_b.prev!
+      assert_same item_c, item_b.next
+      assert_same item_b, item_c.prev
+    end
+    
+    it 'splits after the item with after: true' do
+      assert_same item_b, item_b.split(after: true)
+      assert_same item_b, item_a.next
+      assert_same item_a, item_b.prev
+      assert_nil item_c.prev!
+      assert_nil item_b.next!
+    end
+    
+    it 'removes the items before when in a list' do
+      item_a = subject.new list: list
+      
+      list.expect :increment, nil, [2]
+      tail.expect :prev=, nil, [item_c]
+      
+      item_a.append item_b # which is already linked to item_c
+      list.verify
+      tail.verify
+      
+      # Now a, b and c are part of a list
+      
+      list.expect :head, head
+      list.expect :decrement, nil, [1]
+      head.expect :nil?, true
+      head.expect :next=, nil, [item_b]
+      
+      item_b.split
+      
+      list.verify
+      head.verify
+      
+      assert_nil item_a.list
+    end
+    
+    it 'removes the items after when in a list and after: true' do
+      item_a = subject.new list: list
+      
+      list.expect :increment, nil, [2]
+      tail.expect :prev=, nil, [item_c]
+      
+      item_a.append item_b # which is already linked to item_c
+      list.verify
+      tail.verify
+      
+      # Now a, b and c are part of a list
+      
+      list.expect :tail, tail
+      list.expect :decrement, nil, [1]
+      tail.expect :nil?, true
+      tail.expect :prev=, nil, [item_b]
+      
+      item_b.split after: true
+      
+      list.verify
+      tail.verify
+      
+      assert_nil item_c.list
     end
   end
   
@@ -179,6 +263,17 @@ describe Linked::Item do
       
       assert_same item_c, item_b.next
       assert_same item_c, ret
+    end
+    
+    it 'only inserts the items after the given one' do
+      skip
+      item_a.append item_b
+      item_b.append item_c
+      
+      item.append item_b
+      
+      assert item_a.last?
+      assert_same item_b, item.next
     end
     
     it 'calls #prev= on tail and #incerment on the list when last in one' do
@@ -237,6 +332,17 @@ describe Linked::Item do
       
       assert_same item_a, item_b.prev
       assert_same item_a, ret
+    end
+    
+    it 'only inserts the items before the given one' do
+      skip
+      item_a.append item_b
+      item_b.append item_c
+      
+      item.prepend item_b
+      
+      assert item_c.first
+      assert_same item_b, item.prev
     end
     
     it 'calls #next= on head and #incerment on the list when first in one' do

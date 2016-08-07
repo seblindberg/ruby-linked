@@ -4,10 +4,45 @@ describe Linked::List::EOL do
   subject { Linked::List::EOL }
   
   let(:list) { Minitest::Mock.new }
-  let(:eol) { subject.new list: list }
   let(:item) { Linked::Item.new }
   let(:item_a) { Linked::Item.new }
   let(:item_b) { Linked::Item.new }
+  let(:eol) { subject.new list: list }
+  let(:eol_with_item) { list.expect :increment, nil, [1]; eol.append item; eol }
+  let(:eol_whit_items) do
+    item_a.append item_b
+    list.expect :increment, nil, [2]
+    eol.append item_a
+    eol
+  end
+  
+  describe '#first?' do
+    it 'is private' do
+      assert eol.private_methods.include?(:first?)
+    end
+    
+    it 'returns true when there are no items' do
+      assert eol.send :first?
+    end
+    
+    it 'returns false when there are items' do
+      refute eol_with_item.send :first?
+    end
+  end
+  
+  describe '#last?' do
+    it 'is private' do
+      assert eol.private_methods.include?(:last?)
+    end
+
+    it 'returns true' do
+      assert eol.send :last?
+    end
+    
+    it 'returns false when there are items' do
+      refute eol_with_item.send :last?
+    end
+  end
 
   describe '#nil?' do
     it 'returns true' do
@@ -46,7 +81,7 @@ describe Linked::List::EOL do
       list.verify
     end
     
-    it 'trats an arbitrary object as a value' do
+    it 'treats an arbitrary object as a value' do
       list.expect :increment, nil, [1]
       eol.append :value
       
@@ -90,7 +125,7 @@ describe Linked::List::EOL do
       list.verify
     end
     
-    it 'trats an arbitrary object as a value' do
+    it 'treats an arbitrary object as a value' do
       list.expect :increment, nil, [1]
       eol.prepend :value
       
@@ -110,12 +145,7 @@ describe Linked::List::EOL do
     end
     
     it 'iterates over all items in reverse' do
-      list.expect :increment, nil, [1]
-      eol.append item_a
-      list.expect :increment, nil, [1]
-      eol.append item_b
-
-      res = eol.before.to_a
+      res = eol_whit_items.before.to_a
 
       assert_same item_b, res.first
       assert_same item_a, res.last
@@ -129,12 +159,7 @@ describe Linked::List::EOL do
     end
       
     it 'iterates over all items' do
-      list.expect :increment, nil, [1]
-      eol.append item_a
-      list.expect :increment, nil, [1]
-      eol.append item_b
-      
-      res = eol.after.to_a
+      res = eol_whit_items.after.to_a
       
       assert_same item_a, res.first
       assert_same item_b, res.last

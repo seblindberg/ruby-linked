@@ -22,7 +22,7 @@ module Linked
     protected :prev=, :next=, :list=
     
     # Creates a new item. If a list is given the item will be considered a part
-    # of that list.
+    # of that list and appended to the end of it.
     #
     # value - an arbitrary object to store with the item.
     # list - an object responding to #head and #tail.
@@ -33,10 +33,7 @@ module Linked
       @value = value
       @list = list
       if list
-        @prev = list.head
-        @prev.next = self
-        @next = list.tail
-        @next.prev = self
+        list.tail.append self
       else
         @next = nil
         @prev = nil
@@ -113,6 +110,65 @@ module Linked
     end
     
     alias previous! prev!
+    
+    # Split the chain of items in two. If the chain belongs to a list this item
+    # and all that stay connected to it will continue to belong to it, while the
+    # rest are removed from it.
+    #
+    # By default all items followng this one will be kept together, but if given
+    # the argument after: true, the split will instead happen after this item
+    # and it will instead be kept with those before it.
+    #
+    # Example
+    #
+    #   item_b.split(after: false) => ~item_a~ |> item_b     item_c
+    #   item_b.split(after: true)  =>  item_a     item_b <| ~item_c~
+    #
+    # after - determine wheter to split the chain before or after this item.
+    #
+    # Returns self.
+    
+    def split after: false
+      if after
+        unless last?
+          if @list
+            item = self
+            count = 1 + loop.count do
+              item = item.next
+              item.list = nil
+            end
+            
+            tail = @list.tail
+            tail.prev = self
+            @next = tail
+            @list.decrement count
+          else
+            @next.prev = nil
+            @next = nil
+          end
+        end
+      else
+        unless first?
+          if @list
+            item = self
+            count = 1 + loop.count do
+              item = item.prev
+              item.list = nil
+            end
+            
+            head = @list.head
+            head.next = self
+            @prev = head
+            @list.decrement count
+          else
+            @prev.next = nil
+            @prev = nil
+          end
+        end
+      end
+      
+      self
+    end
     
     # Inserts the given item between this one and the one after it (if any). If
     # the given item is part of a chain, all items following it will be moved to
