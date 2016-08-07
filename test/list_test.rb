@@ -277,4 +277,23 @@ describe Linked::List do
       assert_same item_a, res.last
     end
   end
+  
+  describe '#dup' do
+    before do
+      item_a.value = 'a'
+
+      list.push item_a
+      list.push item_b
+    end
+    
+    it 'copies the entire chain of items' do
+      duped_list = list.dup
+      
+      refute_same item_a, duped_list.first
+      refute_same item_b, duped_list.last
+      
+      assert_equal item_a.value, duped_list.first.value
+      refute_same item_a.value, duped_list.first.value
+    end
+  end
 end

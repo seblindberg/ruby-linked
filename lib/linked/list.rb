@@ -42,10 +42,23 @@ module Linked
     # directly.
 
     def initialize(*)
-      super
-
       @eol = EOL.new list: self
       @item_count = 0
+      
+      super
+    end
+    
+    # When copying a list its entire item chain needs to be copied as well.
+    # Therefore #dup will be called on each of the original lists items, making
+    # this operation quite expensive.
+    
+    def initialize_dup(source)
+      @eol = EOL.new list: self
+      @item_count = 0
+      
+      source.each { |item| push item.dup  }
+      
+      super
     end
 
     # Access the first n item(s) in the list.
