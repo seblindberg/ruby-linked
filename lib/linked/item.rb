@@ -1,21 +1,21 @@
-# Item
-#
-# This class implements doubly linked list items, designed to work both on their
-# own and as children of list.
-#
-#  +- - - +    +------+------+            +- - - +
-#  | Head | <--| prev | next |--> ... --> | Tail |
-#  + - - -+    +------+------+            + - - -+
-# (optional)     First Item     N Items  (optional)
-#
-# An object is considered a list if it responds to #head, #tail, #grow and
-# #shrink. The latter facilitate counting of the items and will be called
-# everytime an item is appended, prepended or deleted. #head and #tail are
-# expected to return two objects that, respectivly
-# a) responds to #next= and #prev= respectivly and
-# b) returns true for #nil?.
-
 module Linked
+  # Item
+  #
+  # This class implements doubly linked list items, designed to work both on
+  # their own and as children of list.
+  #
+  #  +- - - +    +------+------+            +- - - +
+  #  | Head | <--| prev | next |--> ... --> | Tail |
+  #  + - - -+    +------+------+            + - - -+
+  # (optional)     First Item     N Items  (optional)
+  #
+  # An object is considered a list if it responds to #head, #tail, #grow and
+  # #shrink. The latter facilitate counting of the items and will be called
+  # everytime an item is appended, prepended or deleted. #head and #tail are
+  # expected to return two objects that, respectivly
+  # a) responds to #next= and #prev= respectivly and
+  # b) returns true for #nil?.
+  
   class Item
     attr_accessor :list, :value
     attr_writer :prev, :next
