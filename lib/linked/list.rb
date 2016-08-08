@@ -284,7 +284,7 @@ module Linked
       @item_count -= n
     end
 
-    # Private helper method that returns the first n items, starting just after
+    # Protected helper method that returns the first n items, starting just after
     # item,  given that there are items_left items left. The following must hold
     # for the output to be valid:
     # a) n > 0
@@ -299,7 +299,7 @@ module Linked
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
 
-    private def first_item_after(item, items_left, n)
+    protected def first_item_after(item, items_left, n)
       # Optimize for these cases
       return nil if n == 0
       return item.next if n == 1
@@ -309,7 +309,7 @@ module Linked
       n > 1 ? [] : nil
     end
 
-    # Private helper method that returns the last n items, ending just before
+    # Protected helper method that returns the last n items, ending just before
     # item,  given that there are items_left items left. The following must hold
     # for the output to be valid:
     # a) n > 0
@@ -324,7 +324,7 @@ module Linked
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
 
-    private def last_item_before(item, items_left, n)
+    protected def last_item_before(item, items_left, n)
       # Optimize for these cases
       return nil if n == 0
       return item.prev if n == 1
