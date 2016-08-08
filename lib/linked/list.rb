@@ -293,7 +293,7 @@ module Linked
     # a) n > 0
     # b) there are at least items_left items left
     #
-    # item - the Item just before the item to start from
+    # item - the Item just before the item to start from.
     # n - the number of items to return.
     # items_left - the number of items left.
     #
@@ -302,13 +302,13 @@ module Linked
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
 
-    protected def first_item_after(item, n, items_left = nil)
+    protected def first_item_after(item, n, items_left = @item_count)
       # Optimize for these cases
       return nil if n == 0
       return n > 1 ? [] : nil if item.next!.nil?
       return item.next if n == 1
       
-      n = (n > items_left ? items_left : n) if items_left
+      n = items_left if n > items_left
 
       arr = Array.new n
       n.times { |i| arr[i] = item = item.next }
@@ -334,23 +334,18 @@ module Linked
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
 
-    protected def last_item_before(item, n, items_left = nil)
+    protected def last_item_before(item, n, items_left = @item_count)
       # Optimize for these cases
       return nil if n == 0
       return n > 1 ? [] : nil if item.prev!.nil?
       return item.prev if n == 1
 
-      # Things can be sped up if we know how many items are
-      # left
-      n = (n > items_left ? items_left : n) if items_left
+      n = items_left if n > items_left
       
       arr = Array.new n
       (n - 1).downto(0) { |i| arr[i] = item = item.prev }
       arr
     rescue StopIteration
-      # If items_left was not known, or wrong, we end up
-      # here. We know for a fact that the array contains
-      # nil elements.
       arr.compact! || arr
     end
   end
