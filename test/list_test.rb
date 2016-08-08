@@ -6,8 +6,8 @@ describe Linked::List do
   let(:list) { subject.new }
   let(:item) { Linked::Item.new }
   
-  let(:item_a) { Linked::Item.new }
-  let(:item_b) { Linked::Item.new }
+  let(:item_a) { Linked::Item.new :a }
+  let(:item_b) { Linked::Item.new :b }
   
   it 'includes Enumerable' do
     assert subject.ancestors.include? Enumerable
@@ -16,6 +16,10 @@ describe Linked::List do
   describe '#first' do
     it 'returns nil for empty lists' do
       assert_nil list.first
+    end
+    
+    it 'returns an empty array for empty lists when n > 1' do
+      assert_equal [], list.first(2)
     end
     
     it 'returns the first item' do
@@ -40,6 +44,15 @@ describe Linked::List do
       res = list.first 3
       
       assert_equal 2, res.length
+    end
+    
+    it 'accepts a block for selecting which item to start at' do
+      list.push item_a
+      list.push item_b
+      
+      assert_same item_b, list.first { |item| item.value == :b  }
+      assert_equal [item_b], list.first(2) { |item| item.value == :b  }
+      assert_equal [], list.first(2) { |item| item.value == :c  }
     end
   end
   

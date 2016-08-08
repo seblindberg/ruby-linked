@@ -63,18 +63,25 @@ module Linked
       super
     end
 
-    # Access the first n item(s) in the list.
+    # Access the first n item(s) in the list. If a block is given each item will
+    # be yielded to it. The first item for which the block returns true and the
+    # n - 1 items directly following it will be returned.
     #
     # n - the number of items to return.
     #
     # Returns the first item, or an array of items if n > 1.
 
-    def first(*args)
-      if args.empty?
-        eol.next!
-      else
-        super
-      end
+    def first(n = 1)
+      raise ArgumentError, 'n cannot be negative' if n < 0
+      
+      return first_item_from eol, count, n unless block_given?
+      
+      item = eol
+      items_left = count.downto 1 do |i|
+                     break i if yield item = item.next
+                   end
+      
+      first_item_from item.prev, items_left, n
     end
 
     # Access the last n item(s) in the list. When n > 1 the resulting array of
@@ -246,6 +253,31 @@ module Linked
 
     private def shrink(n = 1)
       @item_count -= n
+    end
+    
+    # Private helper method that returns the first n items, starting with item,
+    # given that there are items_left items left. The following must hold for
+    # the output to be valid:
+    # a) n > 0
+    # b) there are at least items_left items left
+    #
+    # item - the Item just before the item to start from
+    # items_left - the number of items left
+    # n - the number of items to return
+    #
+    # Returns, for different values of n:
+    # n == 0) nil
+    # n == 1) an item if items_left > 0 or nil
+    #  n > 1) an array of items if items_left > 0 or an empty array
+    
+    private def first_item_from(item, items_left, n)
+      # Optimize for these cases
+      return nil if n == 0
+      return item.next if n == 1
+      
+      (n > items_left ? items_left : n).times.map { item = item.next }
+    rescue StopIteration
+      n > 1 ? [] : nil
     end
   end
 end
