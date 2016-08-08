@@ -285,6 +285,18 @@ describe Linked::List do
       assert_nil list.shift
     end
   end
+  
+  describe '#include?' do
+    before { list << item_a }
+    
+    it 'returns true when the item is in the list' do
+      assert list.include?(item_a)
+    end
+    
+    it 'returns false when the item is not in the list' do
+      refute list.include?(item_b)
+    end
+  end
 
   describe '#each_item' do
     before do

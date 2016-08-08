@@ -89,6 +89,16 @@ module Linked
     def last?
       @next.nil?
     end
+    
+    # Check if the item is in the given list.
+    #
+    # list - any object.
+    #
+    # Returns true if the item is part of the given list.
+
+    def in?(list)
+      @list.equal? list
+    end
 
     # Access the next item in the list. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.

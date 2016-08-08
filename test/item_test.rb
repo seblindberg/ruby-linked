@@ -78,6 +78,18 @@ describe Linked::Item do
       tail.verify
     end
   end
+  
+  describe '#in?' do
+    it 'returns true if the item is in the list' do
+      list.expect :equal?, true, [list]
+      item = subject.new list: list
+      assert item.in?(list)
+    end
+    
+    it 'returns false if the item is not in the list' do
+      refute item.in?(list)
+    end
+  end
 
   describe '#next' do
     it 'returns the next item' do

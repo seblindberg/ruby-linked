@@ -194,6 +194,17 @@ module Linked
       return nil if empty?
       first.delete
     end
+    
+    # Check if an item is in the list.
+    #
+    # item - Item, or object responding to #in? and returns true when it is in
+    #        the list.
+    #
+    # Returns true if the given item is in the list, otherwise false.
+    
+    def include?(item)
+      item.in? self
+    end
 
     # Iterates over each item in the list, either in normal or reverse order. If
     # a block is not given an enumerator is returned.
