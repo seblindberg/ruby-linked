@@ -285,9 +285,11 @@ module Linked
       @item_count -= n
     end
 
-    # Protected helper method that returns the first n items, starting just after
-    # item,  given that there are items_left items left. The following must hold
-    # for the output to be valid:
+    # Protected helper method that returns the first n items, starting just
+    # after item, given that there are items_left items left. Knowing the exact
+    # number of items left is not cruicial but does impact speed. The number
+    # should not be lower than the actual ammount. The following must
+    # hold for the output to be valid:
     # a) n > 0
     # b) there are at least items_left items left
     #
@@ -316,8 +318,10 @@ module Linked
     end
 
     # Protected helper method that returns the last n items, ending just before
-    # item,  given that there are items_left items left. The following must hold
-    # for the output to be valid:
+    # item,  given that there are items_left items left. Knowing the exact
+    # number of items left is not cruicial but does impact speed. The number
+    # should not be lower than the actual ammount. The following must hold for
+    # the output to be valid:
     # a) n > 0
     # b) there are at least items_left items left
     #
