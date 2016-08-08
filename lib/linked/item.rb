@@ -56,12 +56,12 @@ module Linked
         @prev = nil
       end
     end
-    
+
     # Calling #dup on an item returns a copy that is no longer connected to the
     # original item chain, or the list. The value will also be copied.
     #
     # Returns a new Item.
-    
+
     def initialize_dup(source)
       @next = @prev = @list = nil
       @value = begin
@@ -326,21 +326,21 @@ module Linked
         item = item.next
       end
     end
-    
+
     # Freezes the value, as well as making the list item itself immutable.
-    
+
     def freeze
       value.freeze
       super
     end
-    
+
     # The default #inspect method becomes very cluttered the moment you start
     # liking objects together. This implementation fixes that and only shows the
     # class name, object id and value (if set).
-    
+
     def inspect
       return yield self if block_given?
-      
+
       output = format '%s:0x%0x', self.class.name, object_id
       value ? output + " value=#{value.inspect}" : output
     end

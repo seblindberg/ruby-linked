@@ -46,20 +46,20 @@ module Linked
     def initialize(*)
       @eol = EOL.new list: self
       @item_count = 0
-      
+
       super
     end
-    
+
     # When copying a list its entire item chain needs to be copied as well.
     # Therefore #dup will be called on each of the original lists items, making
     # this operation quite expensive.
-    
+
     def initialize_dup(source)
       @eol = EOL.new list: self
       @item_count = 0
-      
+
       source.each_item { |item| push item.dup  }
-      
+
       super
     end
 
@@ -78,18 +78,18 @@ module Linked
 
     def first(n = 1)
       raise ArgumentError, 'n cannot be negative' if n < 0
-      
+
       return first_item_after eol, count, n unless block_given?
-      
+
       item = eol
       items_left = count
-      
+
       items_left.times do
         break if yield next_item = item.next
         item = next_item
         items_left -= 1
       end
-      
+
       first_item_after item, items_left, n
     end
 
@@ -108,12 +108,12 @@ module Linked
 
     def last(n = 1)
       raise ArgumentError, 'n cannot be negative' if n < 0
-      
+
       return last_item_before eol, count, n unless block_given?
-      
+
       item = eol
       items_left = count
-      
+
       items_left.times do
         break if yield prev_item = item.prev
         item = prev_item
@@ -209,21 +209,21 @@ module Linked
         eol.after(&block)
       end
     end
-    
+
     alias each each_item
-    
+
     # Iterates over each item in the list in reverse order. If a block is not
     # given an enumerator is returned.
-    
+
     def reverse_each_item(&block)
       eol.before(&block)
     end
-    
+
     alias reverse_each reverse_each_item
-    
+
     # Calls #freeze on all items in the list, as well as the head and the tail
     # (eol).
-    
+
     def freeze
       eol.freeze
       each_item(&:freeze)
@@ -239,15 +239,15 @@ module Linked
     def inspect(&block)
       # Get the parents inspect output
       res = [super]
-      
+
       each_item do |item|
         lines = item.inspect(&block).split "\n"
-        
+
         res.push (item.last? ? '└─╴' : '├─╴') + lines.shift
         padding = item.last? ? '   ' : '│  '
         lines.each { |line| res.push padding + line }
       end
-      
+
       res.join("\n")
     end
 
@@ -272,7 +272,7 @@ module Linked
     private def shrink(n = 1)
       @item_count -= n
     end
-    
+
     # Private helper method that returns the first n items, starting just after
     # item,  given that there are items_left items left. The following must hold
     # for the output to be valid:
@@ -287,17 +287,17 @@ module Linked
     # n == 0) nil
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
-    
+
     private def first_item_after(item, items_left, n)
       # Optimize for these cases
       return nil if n == 0
       return item.next if n == 1
-      
+
       (n > items_left ? items_left : n).times.map { item = item.next }
     rescue StopIteration
       n > 1 ? [] : nil
     end
-    
+
     # Private helper method that returns the last n items, ending just before
     # item,  given that there are items_left items left. The following must hold
     # for the output to be valid:
@@ -312,12 +312,12 @@ module Linked
     # n == 0) nil
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
-    
+
     private def last_item_before(item, items_left, n)
       # Optimize for these cases
       return nil if n == 0
       return item.prev if n == 1
-      
+
       # Truncate n if it is larger than the number of items
       # left
       n = (n > items_left ? items_left : n)
