@@ -296,6 +296,10 @@ describe Linked::List do
     it 'returns false when the item is not in the list' do
       refute list.include?(item_b)
     end
+    
+    it 'returns false for other objects' do
+      refute list.include?(:no_item)
+    end
   end
 
   describe '#each_item' do
