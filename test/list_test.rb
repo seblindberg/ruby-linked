@@ -292,9 +292,13 @@ describe Linked::List do
       list.push item_b
     end
     
+    it 'returns an enumerator' do
+      assert_kind_of Enumerator, list.each_item
+    end
+    
     it 'iterates over each item' do
       res = []
-      list.each { |item| res << item }
+      list.each_item { |item| res << item }
       
       assert_same item_a, res.first
       assert_same item_b, res.last
@@ -302,10 +306,37 @@ describe Linked::List do
     
     it 'iterates over each item in reverse' do
       res = []
-      list.each(reverse: true) { |item| res << item }
+      list.each_item(reverse: true) { |item| res << item }
       
       assert_same item_b, res.first
       assert_same item_a, res.last
+    end
+    
+    it 'is aliased to #each' do
+      assert_equal list.method(:each_item), list.method(:each)
+    end
+  end
+  
+  describe '#reverse_each_item' do
+    before do
+      list.push item_a
+      list.push item_b
+    end
+    
+    it 'returns an enumerator' do
+      assert_kind_of Enumerator, list.reverse_each_item
+    end
+      
+    it 'iterates over each item in reverse' do
+      res = []
+      list.reverse_each_item { |item| res << item }
+      
+      assert_same item_b, res.first
+      assert_same item_a, res.last
+    end
+    
+    it 'is aliased to #reverse_each' do
+      assert_equal list.method(:reverse_each_item), list.method(:reverse_each)
     end
   end
   
