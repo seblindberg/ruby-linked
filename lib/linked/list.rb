@@ -64,56 +64,63 @@ module Linked
     end
 
     # Access the first n item(s) in the list. If a block is given each item will
-    # be yielded to it. The first item for which the block returns true and the
-    # n - 1 items directly following it will be returned.
+    # be yielded to it. The first item, starting from the first in the list, for
+    # which the block returns true and the n - 1 items directly following it
+    # will be returned.
     #
     # n - the number of items to return.
     #
-    # Returns the first item, or an array of items if n > 1.
+    # Returns, for different values of n:
+    # n == 0) nil
+    # n == 1) an item if the list contains one, or nil
+    #  n > 1) an array of between 0 and n items, depending on how many are in
+    #         the list
 
     def first(n = 1)
       raise ArgumentError, 'n cannot be negative' if n < 0
       
-      return first_item_from eol, count, n unless block_given?
+      return first_item_after eol, count, n unless block_given?
       
       item = eol
-      items_left = count.downto 1 do |i|
-                     break i if yield item = item.next
-                   end
+      items_left = count
       
-      first_item_from item.prev, items_left, n
+      items_left.times do
+        break if yield next_item = item.next
+        item = next_item
+        items_left -= 1
+      end
+      
+      first_item_after item, items_left, n
     end
 
-    # Access the last n item(s) in the list. When n > 1 the resulting array of
-    # items will have their order preserved.
-    #
-    # When n is zero an empty array will be returned, in order to comply with
-    # the behaviour of #first. Negative values will raise an ArgumentError.
+    # Access the last n item(s) in the list. The items will retain thier order.
+    # If a block is given each item, starting with the last in the list, will be
+    # yielded to it. The first item for which the block returns true and the
+    # n - 1 items directly preceding it will be returned.
     #
     # n - the number of items to return.
     #
-    # Returns the last item, or an array of items if n > 1.
+    # Returns, for different values of n:
+    # n == 0) nil
+    # n == 1) an item if the list contains one, or nil
+    #  n > 1) an array of between 0 and n items, depending on how many are in
+    #         the list
 
     def last(n = 1)
-      if n == 1
-        eol.prev!
-      else
-        raise ArgumentError, 'n cannot be negative' if n < 0
-
-        n = count if n > count
-        res = Array.new n
-
-        return res if n == 0
-
-        item = eol.prev!
-        loop do
-          n -= 1
-          res[n] = item
-          item = item.prev
-        end
-
-        res
+      raise ArgumentError, 'n cannot be negative' if n < 0
+      
+      return last_item_before eol, count, n unless block_given?
+      
+      item = eol
+      items_left = count
+      
+      items_left.times do
+        break if yield prev_item = item.prev
+        item = prev_item
+        items_left -= 1
       end
+
+      last_item_before item, items_left, n
     end
 
     # Overrides the Enumerable#count method when given no argument to provide a
@@ -191,10 +198,12 @@ module Linked
     # Iterates over each item in the list, either in normal or reverse order. If
     # a block is not given an enumerator is returned.
     #
-    # reverse - flips the iteration order if true.
+    # reverse - flips the iteration order if true. Note that this option is
+    #           depricated and will be removed in the next major release.
 
     def each_item(reverse: false, &block)
       if reverse
+        warn '[DEPRECATION] the option `reverse: true` is deprecated.  Please call `reverse_each_item` instead.'
         eol.before(&block)
       else
         eol.after(&block)
@@ -202,6 +211,15 @@ module Linked
     end
     
     alias each each_item
+    
+    # Iterates over each item in the list in reverse order. If a block is not
+    # given an enumerator is returned.
+    
+    def reverse_each_item(&block)
+      eol.before(&block)
+    end
+    
+    alias reverse_each reverse_each_item
     
     # Calls #freeze on all items in the list, as well as the head and the tail
     # (eol).
@@ -255,27 +273,57 @@ module Linked
       @item_count -= n
     end
     
-    # Private helper method that returns the first n items, starting with item,
-    # given that there are items_left items left. The following must hold for
-    # the output to be valid:
+    # Private helper method that returns the first n items, starting just after
+    # item,  given that there are items_left items left. The following must hold
+    # for the output to be valid:
     # a) n > 0
     # b) there are at least items_left items left
     #
     # item - the Item just before the item to start from
-    # items_left - the number of items left
-    # n - the number of items to return
+    # items_left - the number of items left.
+    # n - the number of items to return.
     #
     # Returns, for different values of n:
     # n == 0) nil
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
     
-    private def first_item_from(item, items_left, n)
+    private def first_item_after(item, items_left, n)
       # Optimize for these cases
       return nil if n == 0
       return item.next if n == 1
       
       (n > items_left ? items_left : n).times.map { item = item.next }
+    rescue StopIteration
+      n > 1 ? [] : nil
+    end
+    
+    # Private helper method that returns the last n items, ending just before
+    # item,  given that there are items_left items left. The following must hold
+    # for the output to be valid:
+    # a) n > 0
+    # b) there are at least items_left items left
+    #
+    # item - the Item just after the item to start from.
+    # items_left - the number of items left.
+    # n - the number of items to return.
+    #
+    # Returns, for different values of n:
+    # n == 0) nil
+    # n == 1) an item if items_left > 0 or nil
+    #  n > 1) an array of items if items_left > 0 or an empty array
+    
+    private def last_item_before(item, items_left, n)
+      # Optimize for these cases
+      return nil if n == 0
+      return item.prev if n == 1
+      
+      # Truncate n if it is larger than the number of items
+      # left
+      n = (n > items_left ? items_left : n)
+      (n - 1).downto(0).with_object(Array.new n) do |i, arr|
+        arr[i] = item = item.prev
+      end
     rescue StopIteration
       n > 1 ? [] : nil
     end

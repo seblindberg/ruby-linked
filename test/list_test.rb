@@ -50,7 +50,9 @@ describe Linked::List do
       list.push item_a
       list.push item_b
       
+      assert_nil list.first { |item| item.value == :c  }
       assert_same item_b, list.first { |item| item.value == :b  }
+      assert_equal [item_a, item_b], list.first(2) { |item| item.value == :a  }
       assert_equal [item_b], list.first(2) { |item| item.value == :b  }
       assert_equal [], list.first(2) { |item| item.value == :c  }
     end
@@ -61,13 +63,18 @@ describe Linked::List do
       assert_nil list.last
     end
     
+    it 'returns nil when given 0' do
+      list.push item
+      assert_nil list.last(0)
+    end
+    
+    it 'returns an empty array for empty lists when n > 0' do
+      assert_equal [], list.last(2)
+    end
+    
     it 'returns the first item' do
       list.push item
       assert_same item, list.last
-    end
-    
-    it 'returns an empty array when given 0' do
-      assert_equal [], list.last(0)
     end
     
     it 'supports fetching multiple items' do
@@ -91,6 +98,17 @@ describe Linked::List do
     
     it 'raises an ArgumentError for negative ammounts' do
       assert_raises(ArgumentError) { list.last(-1) }
+    end
+    
+    it 'accepts a block for selecting which item to start at' do
+      list.push item_a
+      list.push item_b
+      
+      assert_nil list.last { |item| item.value == :c  }
+      assert_same item_a, list.last { |item| item.value == :a  }
+      assert_equal [item_a, item_b], list.last(2) { |item| item.value == :b  }
+      assert_equal [item_a], list.last(2) { |item| item.value == :a  }
+      assert_equal [], list.last(2) { |item| item.value == :c  }
     end
   end
   
