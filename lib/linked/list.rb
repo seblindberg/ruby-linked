@@ -203,7 +203,7 @@ module Linked
 
     def each_item(reverse: false, &block)
       if reverse
-        warn '[DEPRECATION] the option `reverse: true` is deprecated.  Please call `reverse_each_item` instead.'
+        warn '[DEPRECATION] the option `reverse: true` will be removed in a future release. Please call `reverse_each_item` instead.'
         eol.before(&block)
       else
         eol.after(&block)
