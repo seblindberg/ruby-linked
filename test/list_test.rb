@@ -417,4 +417,36 @@ describe Linked::List do
       refute_nil res['└─╴b']
     end
   end
+  
+  # This method is not part of the public API, but since it might get called in
+  # other implementations there is a test for it. Mostly though, it is tested
+  # through #first.
+  
+  describe '#first_item_after' do
+    it 'does not require the total number of items left to be known' do
+      list.push item_a
+      list.push item_b
+      
+      res = list.send :first_item_after, item_a, 2
+      
+      assert_equal 1, res.length
+      assert_same item_b, res[0]
+    end
+  end
+  
+  # This method is not part of the public API, but since it might get called in
+  # other implementations there is a test for it. Mostly though, it is tested
+  # through #last.
+  
+  describe '#last_item_before' do
+    it 'does not require the total number of items left to be known' do
+      list.push item_a
+      list.push item_b
+      
+      res = list.send :last_item_before, item_b, 2
+      
+      assert_equal 1, res.length
+      assert_same item_a, res[0]
+    end
+  end
 end
