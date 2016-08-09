@@ -306,6 +306,13 @@ module Linked
     private def shrink(n = 1)
       @item_count -= n
     end
+    
+    private def clear
+      head.next = tail
+      tail.prev = head
+      
+      @item_count = 0
+    end
 
     # Protected helper method that returns the first n items, starting just
     # after item, given that there are items_left items left. Knowing the exact

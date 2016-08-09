@@ -201,6 +201,7 @@ module Linked
     # Returns self.
 
     def split after: false
+      warn '[DEPRECATION] this method will be removed in the next major update. Please use #delete_before and #delete_after instead'
       if after
         unless last?
           if @list
@@ -258,27 +259,28 @@ module Linked
     #
     # Returns the last item that was appended.
 
-    def append(sibling)
-      if sibling.is_a? Item
-        sibling.split
+    def append(object)
+      count = 1
+      if object.respond_to? :item
+        first_item = object.item.send :extract_from
+        last_item = first_item
+        
+        loop do
+          last_item.list = @list
+          last_item = last_item.next
+          count += 1 # Must happen before last_item.next
+        end
       else
-        sibling = self.class.new sibling
+        first_item = last_item = self.class.new object
+        first_item.list = @list
       end
 
-      sibling.prev = self
-      after_sibling = @next
-      @next = sibling
-
-      count = 1 + loop.count do
-        sibling.list = @list
-        sibling = sibling.next
-      end
-
+      first_item.prev = self
+      @next.prev = last_item if @next
+      @next, last_item.next = first_item, @next
+      
       @list.send :grow, count if @list
-
-      sibling.next = after_sibling
-      after_sibling.prev = sibling if after_sibling
-      sibling
+      last_item
     end
 
     # Inserts the given item between this one and the one before it (if any). If
@@ -297,29 +299,31 @@ module Linked
     #
     # Returns the last item that was prepended.
 
-    def prepend(sibling)
-      if sibling.is_a? Item
-        sibling.split after: true
+    def prepend(object)
+      count = 1
+      if object.respond_to? :item
+        last_item = object.item.send :extract_upto
+        first_item = last_item
+        
+        loop do
+          first_item.list = @list
+          first_item = first_item.prev
+          count += 1 # Must happen before last_item.next
+        end
       else
-        sibling = self.class.new sibling
+        first_item = last_item = self.class.new object
+        first_item.list = @list
       end
-
-      sibling.next = self
-      before_sibling = @prev
-      @prev = sibling
-
-      count = 1 + loop.count do
-        sibling.list = @list
-        sibling = sibling.prev
-      end
-
+      
+      # Hook up the item(s)
+      last_item.next = self
+      @prev.next = first_item if @prev
+      @prev, first_item.prev = last_item, @prev
+      
       @list.send :grow, count if @list
-
-      sibling.prev = before_sibling
-      before_sibling.next = sibling if before_sibling
-      sibling
+      first_item
     end
-
+    
     # Remove an item from the chain. If this item is part of a list and is
     # either first, last or both in that list, #next= and #prev= will be called
     # on the list head and tail respectivly.
@@ -335,6 +339,20 @@ module Linked
 
       @next = @prev = @list = nil
       self
+    end
+    
+    # Remove all items before this one in the chain. If the items are part of a
+    # list they will be removed from it.
+    #
+    # Returns the last item in the chain that was just deleted, or nil if this
+    # is the first item.
+    
+    def delete_before
+      prev.extract_upto unless first?
+    end
+    
+    def delete_after
+      
     end
 
     # Iterates over each item before this, in reverse order. If a block is not
@@ -383,6 +401,70 @@ module Linked
 
       output = format '%s:0x%0x', self.class.name, object_id
       value ? output + " value=#{value.inspect}" : output
+    end
+    
+    # PRIVATE DANGEROUS METHOD.
+    #
+    # This method should never be called directly since it leaves the extracted
+    # item chain in an invalid state. The following needs to be done immediately
+    # after this method returns:
+    # a) The list, if any, must be cleared from all items.
+    # b) @prev of the first item must be set.
+    #
+    # Returns self.
+    
+    private def extract_from
+      if first?
+        @list.send :clear if in_list?
+        return self
+      end
+      
+      unless in_list?
+        @prev.next = nil
+        return self
+      end
+      
+      item = self
+      count = 1 + loop.count { item = item.next }
+      
+      @prev.next = item.next!
+      item.next!.prev = @prev
+      item.next = nil
+      
+      @list.send :shrink, count
+      self
+    end
+    
+    # PRIVATE DANGEROUS METHOD.
+    #
+    # This method should never be called directly since it leaves the extracted
+    # item chain in an invalid state. The following needs to be done immediately
+    # after this method returns:
+    # a) The list, if any, must be cleared from all items.
+    # b) @next of the last item must be set.
+    #
+    # Returns self.
+    
+    private def extract_upto
+      if last?
+        @list.send :clear if in_list?
+        return self
+      end
+      
+      unless in_list?
+        @next.prev = nil
+        return self
+      end
+      
+      item = self
+      count = 1 + loop.count { item = item.prev }
+      
+      @next.prev = item.prev!
+      item.prev!.next = @next
+      item.prev = nil
+      
+      @list.send :shrink, count
+      self
     end
   end
 end

@@ -4,7 +4,7 @@ describe Linked::Item do
   subject { ::Linked::Item }
 
   let(:item) { subject.new }
-  let(:item_in_list) { subject.new list: list }
+  let(:item_in_list) { subject.new(list: list) }
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
   let(:item_c) { subject.new }
@@ -302,6 +302,11 @@ describe Linked::Item do
       assert_same item_c, item_b.next
       assert_same item_c, ret
     end
+    
+    it 'accepts any object responding to #item' do
+      list.expect :item, item_b
+      item_a.append list
+    end
 
     it 'only inserts the items after the given one' do
       item_a.append item_b
@@ -335,6 +340,27 @@ describe Linked::Item do
       tail.verify
 
       assert_equal list.object_id, item_c.list.object_id
+    end
+    
+    it 'removes items already in a list from that list' do
+      tail.expect :prev=, nil, [item_b]
+      list.expect :grow, nil, [2]
+      
+      item_a.append item_b
+      item_in_list.append item_a # grows the list by 2
+        
+      list.verify && tail.verify
+      
+      list.expect :shrink, nil, [2]
+      tail.expect :nil?, true
+      tail.expect :prev=, nil, [item_in_list]
+      
+      item.append item_a
+      
+      refute item.in_list?
+      refute item_a.in_list?
+      
+      list.verify && tail.verify
     end
 
     it 'accepts a value' do
@@ -403,6 +429,27 @@ describe Linked::Item do
       head.verify
 
       assert_equal list.object_id, item_a.list.object_id
+    end
+    
+    it 'removes items already in a list from that list' do
+      head.expect :next=, nil, [item_a]
+      list.expect :grow, nil, [2]
+      
+      item_a.append item_b
+      item_in_list.prepend item_b # grows the list by 2
+        
+      list.verify && head.verify
+      
+      list.expect :shrink, nil, [2]
+      head.expect :nil?, true
+      head.expect :next=, nil, [item_in_list]
+      
+      item.prepend item_b
+      
+      refute item_a.in_list?
+      refute item_b.in_list?
+      
+      list.verify && head.verify
     end
 
     it 'accepts a value' do
