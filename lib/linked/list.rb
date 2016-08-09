@@ -62,6 +62,28 @@ module Linked
 
       super
     end
+    
+    # Identity method that simply return the list. This method mirrors Item#list
+    # and allows other methods that work on List objects to easily and
+    # interchangebly accept both lists and items as arguments.
+    #
+    # Returns the list itself.
+    
+    def list
+      self
+    end
+    
+    # Access the first item in the list. If the list is empty a NoMethodError
+    # will be raised. This mirrors the behaviour of Item#item and allows other
+    # methods that work on List objects to easily and interchangeably accept
+    # both lists and items as arguments.
+    #
+    # Returns the first item in the list.
+    
+    def item
+      raise NoMethodError if empty?
+      eol.next
+    end
 
     # Access the first n item(s) in the list. If a block is given each item will
     # be yielded to it. The first item, starting from the first in the list, for

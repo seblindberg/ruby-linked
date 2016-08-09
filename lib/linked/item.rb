@@ -24,7 +24,7 @@ module Linked
     #
     # Returns the item's list, or nil
 
-    attr_accessor :list
+    attr_writer :list
     protected :list=
 
     # The Item can hold an arbitrary object as its value and it will stay with
@@ -70,6 +70,36 @@ module Linked
                  source.value
                end
       super
+    end
+    
+    # Identity method that simply return the item. This method mirrors List#item
+    # and allows other methods that work on Item objects to easily and
+    # interchangebly accept both lists and items as arguments.
+    #
+    # Returns the item itself.
+    
+    def item
+      self
+    end
+    
+    # Access the list that the item is part of. If the item is not in a list a
+    # NoMethodError will be raised. This mirrors the behaviour of List#list and
+    # allows other methods that work on List objects to easily and
+    # interchangeably accept both lists and items as arguments.
+    #
+    # Returns the list that the item is part of.
+        
+    def list
+      raise NoMethodError unless @list
+      @list
+    end
+    
+    # Check it the item is part of a list.
+    #
+    # Returns true if the item is in a list.
+    
+    def in_list?
+      @list ? true : false
     end
 
     # Check if this is the first item in the list. It is crucial that tail#nil?

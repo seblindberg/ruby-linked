@@ -12,6 +12,23 @@ describe Linked::List do
   it 'includes Enumerable' do
     assert subject.ancestors.include? Enumerable
   end
+  
+  describe '#item' do
+    it 'returns the first item in the list' do
+      list << item
+      assert_same item, list.item
+    end
+  
+    it 'raises an exception when list is empty' do
+      assert_raises(NoMethodError) { list.item }
+    end
+  end
+
+  describe '#list' do
+   it 'returns the list itself' do
+      assert_same list, list.list
+    end
+  end
 
   describe '#first' do
     it 'returns nil for empty lists' do

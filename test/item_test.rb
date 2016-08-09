@@ -42,6 +42,32 @@ describe Linked::Item do
       assert_same head.object_id, item.prev!.object_id
     end
   end
+  
+  describe '#item' do
+    it 'returns the item itself' do
+      assert_same item, item.item
+    end
+  end
+
+  describe '#list' do
+    it 'returns the list the item is part of' do
+      assert_same list.object_id, item_in_list.list.object_id
+    end
+    
+    it 'raises an exception when the item is not in a list' do
+      assert_raises(NoMethodError) { item.list }
+    end
+  end
+  
+  describe '#in_list?' do
+    it 'returns true when the item is in a list' do
+      assert item_in_list.in_list?
+    end
+    
+    it 'returns false when the item is not in a list' do
+        refute item.in_list?
+      end
+  end
 
   describe '#first?' do
     it 'returns true when there is no item before it' do
@@ -220,7 +246,7 @@ describe Linked::Item do
       list.verify
       head.verify
 
-      assert_nil item_a.list
+      refute item_a.in_list?
     end
 
     it 'removes the items after when in a list and after: true' do
@@ -245,7 +271,7 @@ describe Linked::Item do
       list.verify
       tail.verify
 
-      assert_nil item_c.list
+      refute item_c.in_list?
     end
   end
 
@@ -508,7 +534,7 @@ describe Linked::Item do
       item_b.append item_c
       item_in_list.append item_b
 
-      assert_nil item_b.dup.list
+      refute item_b.dup.in_list?
     end
 
     it 'calls #dup on the value' do

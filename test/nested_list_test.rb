@@ -51,7 +51,7 @@ describe 'Nesting Lists' do
     
     duped_child_a = child_a.dup
     
-    assert_nil duped_child_a.list
+    refute duped_child_a.in_list?
     
     assert_equal 1, duped_child_a.count
     assert_kind_of subject, duped_child_a.first
