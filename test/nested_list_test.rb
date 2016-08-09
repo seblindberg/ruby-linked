@@ -12,6 +12,12 @@ describe 'Nesting Lists' do
   let(:child_a) { subject.new :a }
   let(:child_b) { subject.new :b }
   
+  describe '#item' do
+    it 'returns itself' do
+      assert_same item, item.item
+    end
+  end
+  
   it 'accepts siblings' do
     item.prepend sibling_a
     item.append sibling_b
