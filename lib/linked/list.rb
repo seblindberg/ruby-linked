@@ -232,8 +232,12 @@ module Linked
     # Iterates over each item in the list If a block is not given an enumerator
     # is returned.
 
-    def each_item(&block)
-      eol.after(&block)
+    def each_item
+      return to_enum(__method__) { count } unless block_given?
+      return if empty?
+      
+      item = eol
+      loop { yield item = item.next }
     end
 
     alias each each_item
@@ -241,8 +245,12 @@ module Linked
     # Iterates over each item in the list in reverse order. If a block is not
     # given an enumerator is returned.
 
-    def reverse_each_item(&block)
-      eol.before(&block)
+    def reverse_each_item
+      return to_enum(__method__) { count } unless block_given?
+      return if empty?
+      
+      item = eol
+      loop { yield item = item.prev }
     end
 
     alias reverse_each reverse_each_item
