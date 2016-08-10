@@ -229,19 +229,11 @@ module Linked
       false
     end
 
-    # Iterates over each item in the list, either in normal or reverse order. If
-    # a block is not given an enumerator is returned.
-    #
-    # reverse - flips the iteration order if true. Note that this option is
-    #           depricated and will be removed in the next major release.
+    # Iterates over each item in the list If a block is not given an enumerator
+    # is returned.
 
-    def each_item(reverse: false, &block)
-      if reverse
-        warn '[DEPRECATION] the option `reverse: true` will be removed in a future release. Please call `reverse_each_item` instead.'
-        eol.before(&block)
-      else
-        eol.after(&block)
-      end
+    def each_item(&block)
+      eol.after(&block)
     end
 
     alias each each_item

@@ -198,66 +198,6 @@ module Linked
 
     alias previous! prev!
 
-    # Split the chain of items in two. If the chain belongs to a list this item
-    # and all that stay connected to it will continue to belong to it, while the
-    # rest are removed from it.
-    #
-    # By default all items followng this one will be kept together, but if given
-    # the argument after: true, the split will instead happen after this item
-    # and it will instead be kept with those before it.
-    #
-    # Example for the chain (A <> B <> C)
-    #
-    #   B.split(after: false) => (A), (B <> C)
-    #   B.split(after: true)  => (A <> B), (C)
-    #
-    # after - determine wheter to split the chain before or after this item.
-    #
-    # Returns self.
-
-    def split after: false
-      warn '[DEPRECATION] this method will be removed in the next major update. Please use #delete_before and #delete_after instead'
-      if after
-        unless last?
-          if @list
-            item = self
-            count = 1 + loop.count do
-              item = item.next
-              item.list = nil
-            end
-
-            tail = @list.tail
-            tail.prev = self
-            @next = tail
-            @list.shrink count
-          else
-            @next.prev = nil
-            @next = nil
-          end
-        end
-      else
-        unless first?
-          if @list
-            item = self
-            count = 1 + loop.count do
-              item = item.prev
-              item.list = nil
-            end
-
-            head = @list.head
-            head.next = self
-            @prev = head
-            @list.shrink count
-          else
-            @prev.next = nil
-            @prev = nil
-          end
-        end
-      end
-
-      self
-    end
-
     # Inserts the given item between this one and the one after it (if any). If
     # the given item is part of a chain, all items following it will be moved to
     # this one, and added to the list if one is set.
