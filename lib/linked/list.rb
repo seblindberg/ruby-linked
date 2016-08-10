@@ -167,18 +167,18 @@ module Linked
       @item_count == 0
     end
 
-    # Insert an item at the end of the list. If the given object is not an Item,
-    # or a decendant of Item, it will be treated as a value. Depending on the
-    # state of the list the value will be
-    # a) wraped in a new instance of Item if the list is empty or
-    # b) wraped in an object of the same class as the last item in the list.
+    # Insert an item at the end of the list. If the given object is not an
+    # object responding to #item it will be treated as a value. The value will
+    # be wraped in a new Item create by #create_item.
     #
-    # item - the item to insert, or an arbitrary value.
+    # See Item#append for more details.
+    #
+    # object - the item to insert, or an arbitrary object.
     #
     # Returns self.
 
-    def push(item)
-      eol.append item
+    def push(object)
+      eol.append object
       self
     end
 
@@ -194,17 +194,17 @@ module Linked
     end
 
     # Insert an item at the beginning of the list. If the given object is not an
-    # Item, or a decendant of Item, it will be treated as a value. Depending on
-    # the state of the list the value will be
-    # a) wraped in a new instance of Item if the list is empty or
-    # b) wraped in an object of the same class as the last item in the list.
+    # object responding to #item it will be treated as a value. The value will
+    # be wraped in a new Item create by #create_item.
     #
-    # item - the item to insert, or an arbitrary value.
+    # See Item#prepend for more details.
+    #
+    # object - the item to insert, or an arbitrary object.
     #
     # Returns self.
 
-    def unshift(item)
-      eol.prepend item
+    def unshift(object)
+      eol.prepend object
       self
     end
 
@@ -283,6 +283,20 @@ module Linked
       end
 
       res.join("\n")
+    end
+    
+    # Protected factory method for creating items compatible with the list. This
+    # method is called whenever an arbitrary object is pushed or unshifted onto
+    # an empty list and need to be wraped inside an Item.
+    #
+    # This method can be overridden to suport different Item types.
+    #
+    # args - any arguments will be passed on to Item.new.
+    #
+    # Returns a new Item.
+    
+    protected def create_item(*args)
+      Item.new(*args)
     end
 
     # Internal method to grow the list with n elements. Never call this method

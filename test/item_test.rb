@@ -365,7 +365,19 @@ describe Linked::Item do
 
     it 'accepts a value' do
       item.append :value
+      
+      assert_kind_of subject, item.next
       assert_equal :value, item.next.value
+    end
+    
+    it 'asks the list to create the item when given a value' do
+      list.expect :create_item, item, [:value]
+      list.expect :grow, nil
+      tail.expect :prev=, nil, [item]
+      
+      item_in_list.append :value
+      
+      list.verify
     end
   end
 
@@ -459,7 +471,19 @@ describe Linked::Item do
 
     it 'accepts a value' do
       item.prepend :value
+      
+      assert_kind_of subject, item.prev
       assert_equal :value, item.prev.value
+    end
+    
+    it 'asks the list to create the item when given a value' do
+      list.expect :create_item, item, [:value]
+      list.expect :grow, nil
+      head.expect :next=, nil, [item]
+      
+      item_in_list.prepend :value
+      
+      list.verify
     end
   end
 

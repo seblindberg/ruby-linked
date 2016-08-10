@@ -49,6 +49,18 @@ describe Linked::List::EOL do
       assert eol.nil?
     end
   end
+  
+  describe '#next' do
+    it 'returns the first item' do
+      assert_same item_a, eol_whit_items.next
+    end
+  end
+  
+  describe '#prev' do
+    it 'returns the last item' do
+      assert_same item_b, eol_whit_items.prev
+    end
+  end
 
   describe '#append' do
     it 'inserts an item when it is empty' do
@@ -69,28 +81,6 @@ describe Linked::List::EOL do
       
       assert_same item_b, eol.prev
       assert_same item_a, eol.next
-    end
-    
-    it 'inserts a string of items' do
-      item_a.append item_b
-      list.expect :grow, nil, [2]
-      eol.append item_a
-      
-      assert_same item_b, eol.prev
-      assert_same item_a, eol.next
-      list.verify
-    end
-    
-    it 'treats an arbitrary object as a value' do
-      list.expect :grow, nil, [1]
-      eol.append :value
-      
-      assert_equal :value, eol.next.value
-      
-      list.expect :grow, nil
-      eol.append :value_2
-      
-      assert_equal :value_2, eol.prev.value
     end
   end
   
@@ -113,56 +103,6 @@ describe Linked::List::EOL do
       
       assert_same item_b, eol.prev
       assert_same item_a, eol.next
-    end
-    
-    it 'inserts a string of items' do
-      item_b.prepend item_a
-      list.expect :grow, nil, [2]
-      eol.prepend item_b
-      
-      assert_same item_b, eol.prev
-      assert_same item_a, eol.next
-      list.verify
-    end
-    
-    it 'treats an arbitrary object as a value' do
-      list.expect :grow, nil, [1]
-      eol.prepend :value
-      
-      assert_equal :value, eol.prev.value
-      
-      list.expect :grow, nil, [1]
-      eol.prepend :value_2
-      
-      assert_equal :value_2, eol.next.value
-    end
-  end
-  
-  describe '#before' do
-    it 'returns an empty iterator when it contains no items' do
-      enum = eol.before
-      assert_raises(StopIteration) { enum.next }
-    end
-    
-    it 'iterates over all items in reverse' do
-      res = eol_whit_items.before.to_a
-
-      assert_same item_b, res.first
-      assert_same item_a, res.last
-    end
-  end
-  
-  describe '#after' do
-    it 'returns an empty iterator when it contains no items' do
-      enum = eol.after
-      assert_raises(StopIteration) { enum.next }
-    end
-      
-    it 'iterates over all items' do
-      res = eol_whit_items.after.to_a
-      
-      assert_same item_a, res.first
-      assert_same item_b, res.last
     end
   end
 end

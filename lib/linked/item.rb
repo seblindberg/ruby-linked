@@ -271,8 +271,9 @@ module Linked
     # number of added items as an argument. Should it also be the last item
     # #prev= will be called on the list tail.
     #
-    # sibling - the item to append, or an arbitrary object to be wraped in a new
-    #           item.
+    # object - the item to append, or an arbitrary object to be wraped in a new
+    #          item. If in a list it will be asked to create the new item via
+    #          List#create_item.
     #
     # Returns the last item that was appended.
 
@@ -281,9 +282,13 @@ module Linked
         first_item = object.item
         last_item = first_item.send :extract_beginning_with, @list
       else
-        first_item = last_item = self.class.new object
-        first_item.list = @list
-        @list.send :grow if @list
+        if @list
+          first_item = last_item = @list.send :create_item, object
+          first_item.list = @list
+          @list.send :grow
+        else
+          first_item = last_item = self.class.new object
+        end
       end
       
       first_item.prev = self
@@ -308,8 +313,9 @@ module Linked
     # number of added items as an argument. Should it also be the first item
     # #next= will be called on the list head.
     #
-    # sibling - the item to prepend. or an arbitrary object to be wraped in a
-    #           new item.
+    # object - the item to prepend. or an arbitrary object to be wraped in a
+    #          new item. If in a list it will be asked to create the new item
+    #          via List#create_item.
     #
     # Returns the last item that was prepended.
 
@@ -318,9 +324,13 @@ module Linked
         last_item = object.item
         first_item = last_item.send :extract_ending_with, @list
       else
-        first_item = last_item = self.class.new object
-        first_item.list = @list
-        @list.send :grow, 1 if @list
+        if @list
+          first_item = last_item = @list.send :create_item, object
+          first_item.list = @list
+          @list.send :grow
+        else
+          first_item = last_item = self.class.new object
+        end
       end
       
       last_item.next = self
