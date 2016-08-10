@@ -2,6 +2,10 @@ require 'test_helper'
 
 class NestedListItem < Linked::Item
   include Linked::List
+  
+  protected def create_item(*args)
+    self.class.new(*args)
+  end
 end
 
 describe 'Nesting Lists' do
@@ -26,12 +30,28 @@ describe 'Nesting Lists' do
     assert_same sibling_b, item.next
   end
   
+  it 'accepts arbitrary objects as siblings' do
+    item.prepend :a
+    item.append :b
+    
+    assert_same :a, item.prev.value
+    assert_kind_of subject, item.next
+  end
+  
   it 'accepts children' do
     item.unshift child_a
     item.push child_b
 
     assert_same child_a, item.first
     assert_same child_b, item.last
+  end
+  
+  it 'accepts arbitrary objects as children' do
+    item.unshift :a
+    item.push :b
+
+    assert_same :a, item.first.value
+    assert_kind_of subject, item.last
   end
   
   it 'duplicates the children' do
