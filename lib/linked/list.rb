@@ -287,7 +287,7 @@ module Linked
     
     # Protected factory method for creating items compatible with the list. This
     # method is called whenever an arbitrary object is pushed or unshifted onto
-    # an empty list and need to be wraped inside an Item.
+    # the list and need to be wraped inside an Item.
     #
     # This method can be overridden to suport different Item types.
     #
