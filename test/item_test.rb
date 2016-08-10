@@ -42,7 +42,7 @@ describe Linked::Item do
       assert_same head.object_id, item.prev!.object_id
     end
   end
-  
+
   describe '#item' do
     it 'returns the item itself' do
       assert_same item, item.item
@@ -53,17 +53,17 @@ describe Linked::Item do
     it 'returns the list the item is part of' do
       assert_same list.object_id, item_in_list.list.object_id
     end
-    
+
     it 'raises an exception when the item is not in a list' do
       assert_raises(NoMethodError) { item.list }
     end
   end
-  
+
   describe '#in_list?' do
     it 'returns true when the item is in a list' do
       assert item_in_list.in_list?
     end
-    
+
     it 'returns false when the item is not in a list' do
         refute item.in_list?
       end
@@ -104,14 +104,14 @@ describe Linked::Item do
       tail.verify
     end
   end
-  
+
   describe '#in?' do
     it 'returns true if the item is in the list' do
       list.expect :equal?, true, [list]
       item = subject.new list: list
       assert item.in?(list)
     end
-    
+
     it 'returns false if the item is not in the list' do
       refute item.in?(list)
     end
@@ -216,7 +216,7 @@ describe Linked::Item do
       assert_same item_c, item_b.next
       assert_same item_c, ret
     end
-    
+
     it 'accepts any object responding to #item' do
       list.expect :item, item_b
       item_a.append list
@@ -255,42 +255,42 @@ describe Linked::Item do
 
       assert_equal list.object_id, item_c.list.object_id
     end
-    
+
     it 'removes items already in a list from that list' do
       tail.expect :prev=, nil, [item_b]
       list.expect :grow, nil, [2]
-      
+
       item_a.append item_b
       item_in_list.append item_a # grows the list by 2
-        
+
       list.verify && tail.verify
-      
+
       list.expect :shrink, nil, [2]
       tail.expect :nil?, true
       tail.expect :prev=, nil, [item_in_list]
-      
+
       item.append item_a
-      
+
       refute item.in_list?
       refute item_a.in_list?
-      
+
       list.verify && tail.verify
     end
 
     it 'accepts a value' do
       item.append :value
-      
+
       assert_kind_of subject, item.next
       assert_equal :value, item.next.value
     end
-    
+
     it 'asks the list to create the item when given a value' do
       list.expect :create_item, item, [:value]
       list.expect :grow, nil
       tail.expect :prev=, nil, [item]
-      
+
       item_in_list.append :value
-      
+
       list.verify
     end
   end
@@ -322,7 +322,7 @@ describe Linked::Item do
       assert_same item_a, item_b.prev
       assert_same item_a, ret
     end
-    
+
     it 'accepts any object responding to #item' do
       list.expect :item, item_b
       item_a.prepend list
@@ -361,42 +361,42 @@ describe Linked::Item do
 
       assert_equal list.object_id, item_a.list.object_id
     end
-    
+
     it 'removes items already in a list from that list' do
       head.expect :next=, nil, [item_a]
       list.expect :grow, nil, [2]
-      
+
       item_a.append item_b
       item_in_list.prepend item_b # grows the list by 2
-        
+
       list.verify && head.verify
-      
+
       list.expect :shrink, nil, [2]
       head.expect :nil?, true
       head.expect :next=, nil, [item_in_list]
-      
+
       item.prepend item_b
-      
+
       refute item_a.in_list?
       refute item_b.in_list?
-      
+
       list.verify && head.verify
     end
 
     it 'accepts a value' do
       item.prepend :value
-      
+
       assert_kind_of subject, item.prev
       assert_equal :value, item.prev.value
     end
-    
+
     it 'asks the list to create the item when given a value' do
       list.expect :create_item, item, [:value]
       list.expect :grow, nil
       head.expect :next=, nil, [item]
-      
+
       item_in_list.prepend :value
-      
+
       list.verify
     end
   end
@@ -471,47 +471,47 @@ describe Linked::Item do
       list.verify
     end
   end
-  
+
   describe '#delete_before' do
     before do
       item_a.append(item_b).append(item_c)
     end
-    
+
     it 'returns nil when nothing is removed' do
       assert_nil item_a.delete_before
       assert_same item_b, item_a.next
     end
-    
+
     it 'returns the first item in the deleted chain' do
       assert_same item_a, item_c.delete_before
       assert_nil item_b.next!
       assert_nil item_c.prev!
     end
-    
+
     it 'removes items from a list' do
       head.expect :next=, nil, [item_a]
       list.expect :grow, nil, [2]
-      
+
       item_in_list.prepend item_b # grows the list by 2
-      
+
       assert item_a.in_list?
       assert item_b.in_list?
-        
+
       list.verify && head.verify
-      
+
       list.expect :shrink, nil, [2]
       head.expect :nil?, true
       head.expect :next=, nil, [item_in_list]
-      
+
       item_in_list.delete_before
-      
+
       refute item_a.in_list?
       refute item_b.in_list?
-      
+
       list.verify && head.verify
     end
   end
-  
+
   describe '#delete_after' do
     before do
       item_a.append(item_b).append(item_c)
@@ -533,7 +533,7 @@ describe Linked::Item do
       list.expect :grow, nil, [2]
 
       item_in_list.append item_b # grows the list by 2
-      
+
       assert item_b.in_list?
       assert item_c.in_list?
 
