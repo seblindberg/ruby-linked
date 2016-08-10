@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# TODO: Think about moving some of basic functionallity of Item into Item::Base.
+
 module Linked
   # Item
   #
