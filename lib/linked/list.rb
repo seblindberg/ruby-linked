@@ -62,24 +62,24 @@ module Linked
 
       super
     end
-    
+
     # Identity method that simply return the list. This method mirrors Item#list
     # and allows other methods that work on List objects to easily and
     # interchangebly accept both lists and items as arguments.
     #
     # Returns the list itself.
-    
+
     def list
       self
     end
-    
+
     # Access the first item in the list. If the list is empty a NoMethodError
     # will be raised. This mirrors the behaviour of Item#item and allows other
     # methods that work on List objects to easily and interchangeably accept
     # both lists and items as arguments.
     #
     # Returns the first item in the list.
-    
+
     def item
       raise NoMethodError if empty?
       eol.next
@@ -216,13 +216,13 @@ module Linked
       return nil if empty?
       first.delete
     end
-    
+
     # Check if an item is in the list.
     #
     # item - Item, or any object that may be in the list.
     #
     # Returns true if the given item is in the list, otherwise false.
-    
+
     def include?(item)
       item.in? self
     rescue NoMethodError
@@ -276,7 +276,7 @@ module Linked
 
       res.join("\n")
     end
-    
+
     # Protected factory method for creating items compatible with the list. This
     # method is called whenever an arbitrary object is pushed or unshifted onto
     # the list and need to be wraped inside an Item.
@@ -286,7 +286,7 @@ module Linked
     # args - any arguments will be passed on to Item.new.
     #
     # Returns a new Item.
-    
+
     protected def create_item(*args)
       Item.new(*args)
     end
@@ -312,17 +312,17 @@ module Linked
     private def shrink(n = 1)
       @item_count -= n
     end
-    
+
     # Private method to clear the list. Never call this method without also
     # modifying the items in the list, as this operation leavs them in an
     # inconsistant state. If the list items are kept, make sure to
     # a) clear the `prev` pointer of the first item and
     # b) clear the `next` pointer of the last item.
-    
+
     private def clear
       head.send :next=, tail
       tail.send :prev=, head
-      
+
       @item_count = 0
     end
 
@@ -348,7 +348,7 @@ module Linked
       return nil if n == 0
       return n > 1 ? [] : nil if item.next!.nil?
       return item.next if n == 1
-      
+
       n = items_left if n > items_left
 
       arr = Array.new n
@@ -382,18 +382,18 @@ module Linked
       return item.prev if n == 1
 
       n = items_left if n > items_left
-      
+
       arr = Array.new n
       (n - 1).downto(0) { |i| arr[i] = item = item.prev }
       arr
     rescue StopIteration
       arr.compact! || arr
     end
-    
+
     # This method is called whenever the module is included somewhere. In the
     # special case when List is included in an Item the #item method must be
     # changed to return self.
-    
+
     def self.included(klass)
       klass.send(:define_method, :item) { self } if klass < Item
     end

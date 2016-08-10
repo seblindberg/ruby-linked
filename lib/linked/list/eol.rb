@@ -53,11 +53,11 @@ module Linked
       def prepend(object)
         empty? ? super : @next.prepend(object)
       end
-      
+
       # Private helper to check if the item chain is empty.
       #
       # Return true if the chain is empty, otherwise nil.
-      
+
       private def empty?
         @prev == self
       end

@@ -86,33 +86,33 @@ module Linked
                end
       super
     end
-    
+
     # Identity method that simply return the item. This method mirrors List#item
     # and allows other methods that work on Item objects to easily and
     # interchangebly accept both lists and items as arguments.
     #
     # Returns the item itself.
-    
+
     def item
       self
     end
-    
+
     # Access the list that the item is part of. If the item is not in a list a
     # NoMethodError will be raised. This mirrors the behaviour of List#list and
     # allows other methods that work on List objects to easily and
     # interchangeably accept both lists and items as arguments.
     #
     # Returns the list that the item is part of.
-        
+
     def list
       raise NoMethodError unless @list
       @list
     end
-    
+
     # Check it the item is part of a list.
     #
     # Returns true if the item is in a list.
-    
+
     def in_list?
       @list ? true : false
     end
@@ -134,7 +134,7 @@ module Linked
     def last?
       @next.nil?
     end
-    
+
     # Check if the item is in the given list.
     #
     # list - any object.
@@ -232,11 +232,11 @@ module Linked
           first_item = last_item = self.class.new object
         end
       end
-      
+
       first_item.prev = self
       @next.prev = last_item if @next
       @next, last_item.next = first_item, @next
-      
+
       last_item
     end
 
@@ -274,14 +274,14 @@ module Linked
           first_item = last_item = self.class.new object
         end
       end
-      
+
       last_item.next = self
       @prev.next = first_item if @prev
       @prev, first_item.prev = last_item, @prev
-      
+
       first_item
     end
-    
+
     # Remove an item from the chain. If this item is part of a list and is
     # either first, last or both in that list, #next= and #prev= will be called
     # on the list head and tail respectivly.
@@ -298,23 +298,23 @@ module Linked
       @next = @prev = @list = nil
       self
     end
-    
+
     # Remove all items before this one in the chain. If the items are part of a
     # list they will be removed from it.
     #
     # Returns the last item in the chain that was just deleted, or nil if this
     # is the first item.
-    
+
     def delete_before
       @prev.send :extract_ending_with unless first?
     end
-    
+
     # Remove all items after this one in the chain. If the items are part of a
     # list they will be removed from it.
     #
     # Returns the last item in the chain that was just deleted, or nil if this
     # is the first item.
-    
+
     def delete_after
       @next.send :extract_beginning_with unless last?
     end
@@ -372,7 +372,7 @@ module Linked
       output = format '%s:0x%0x', self.class.name, object_id
       value ? output + " value=#{value.inspect}" : output
     end
-    
+
     # PRIVATE DANGEROUS METHOD. This method should never be called directly
     # since it may leave the extracted item chain in an invalid state.
     #
@@ -391,7 +391,7 @@ module Linked
     # be left in an invalid state.
     #
     # Returns the last item of the chain.
-    
+
     private def extract_beginning_with(new_list = nil)
       old_list = @list
       # Count items and move them to the new list
@@ -400,7 +400,7 @@ module Linked
         last_item.list = new_list
         last_item = last_item.next
       end
-      
+
       # Make sure the old list is in a valid state
       if old_list
         if first?
@@ -415,16 +415,16 @@ module Linked
         # Disconnect the item directly after the chain
         @prev.next = nil unless first?
       end
-      
+
       # Disconnect the chain from the list
       @prev = last_item.next = nil
-      
+
       # Preemptivly tell the new list to grow
       new_list.send :grow, count if new_list
-      
+
       last_item
     end
-    
+
     # PRIVATE DANGEROUS METHOD. This method should never be called directly
     # since it may leave the extracted item chain in an invalid state.
     #
@@ -434,7 +434,7 @@ module Linked
     # effects from calling this method.
     #
     # Returns the first item in the chain.
-    
+
     private def extract_ending_with(new_list = nil)
       old_list = @list
       # Count items and move them to the new list
@@ -443,7 +443,7 @@ module Linked
         first_item.list = new_list
         first_item = first_item.prev
       end
-      
+
       # Make sure the old list is in a valid state
       if old_list
         if last?
@@ -458,13 +458,13 @@ module Linked
         # Disconnect the item directly after the chain
         @next.prev = nil unless last?
       end
-      
+
       # Disconnect the chain from the list
       first_item.prev = @next = nil
-      
+
       # Preemptivly tell the new list to grow
       new_list.send :grow, count if new_list
-      
+
       first_item
     end
   end
