@@ -6,10 +6,10 @@ module Linked
   # This class implements doubly linked list items, designed to work both on
   # their own and as children of list.
   #
-  #  +- - - +    +------+------+            +- - - +
-  #  | Head | <--| prev | next |--> ... --> | Tail |
-  #  + - - -+    +------+------+            + - - -+
-  # (optional)     First Item     N Items  (optional)
+  #             +- - - +    +------+------+            +- - - +
+  #             | Head | <--| prev | next |--> ... --> | Tail |
+  #             + - - -+    +------+------+            + - - -+
+  #            (optional)     First Item     N Items  (optional)
   #
   # An object is considered a list if it responds to #head, #tail, #grow and
   # #shrink. The latter facilitate counting of the items and will be called
@@ -17,6 +17,19 @@ module Linked
   # expected to return two objects that, respectivly
   # a) responds to #next= and #append, or #prev= and #prepend and
   # b) returns true for #nil?.
+  #
+  # Notation
+  # --------
+  #
+  # Some methods operate on chains of items, and to describe the effects of an
+  # operation the following syntax is used.
+  #
+  #                    A   ( A <> B )   [ A <> B ]
+  #                   (i)     (ii)        (iii)
+  #
+  # Single items are denoted with capital letters (i), while chains are written
+  # as multiple connected items (ii). The parenthesis are optional. To show that
+  # one or more nodes are wraped in a list, angle brackets are used (iii).
 
   class Item
     # Access the list (if any) that the item belongs to. Writing to this
@@ -191,10 +204,10 @@ module Linked
     # the argument after: true, the split will instead happen after this item
     # and it will instead be kept with those before it.
     #
-    # Example
+    # Example for the chain (A <> B <> C)
     #
-    #   item_b.split(after: false) => ~item_a~ |> item_b     item_c
-    #   item_b.split(after: true)  =>  item_a     item_b <| ~item_c~
+    #   B.split(after: false) => (A), (B <> C)
+    #   B.split(after: true)  => (A <> B), (C)
     #
     # after - determine wheter to split the chain before or after this item.
     #
@@ -247,6 +260,10 @@ module Linked
     # the given item is part of a chain, all items following it will be moved to
     # this one, and added to the list if one is set.
     #
+    # Example for the chain (A <> C)
+    #
+    #   A.append B # => (A <> B <> C)
+    #
     # Alternativly the argument can be an arbitrary object, in which case a new
     # item will be created around it.
     #
@@ -269,7 +286,6 @@ module Linked
         @list.send :grow if @list
       end
       
-      # Hook up the item(s)
       first_item.prev = self
       @next.prev = last_item if @next
       @next, last_item.next = first_item, @next
@@ -280,6 +296,10 @@ module Linked
     # Inserts the given item between this one and the one before it (if any). If
     # the given item is part of a chain, all items preceeding it will be moved
     # to this one, and added to the list if one is set.
+    #
+    # Example for the chain (A <> C)
+    #
+    #   C.prepend B # => (A <> B <> C)
     #
     # Alternativly the argument can be an arbitrary object, in which case a new
     # item will be created around it.
@@ -294,7 +314,6 @@ module Linked
     # Returns the last item that was prepended.
 
     def prepend(object)
-      #count = 1
       if object.respond_to? :item
         last_item = object.item
         first_item = last_item.send :extract_ending_with, @list
@@ -304,7 +323,6 @@ module Linked
         @list.send :grow, 1 if @list
       end
       
-      # Hook up the item(s)
       last_item.next = self
       @prev.next = first_item if @prev
       @prev, first_item.prev = last_item, @prev
@@ -351,6 +369,9 @@ module Linked
 
     # Iterates over each item before this, in reverse order. If a block is not
     # given an enumerator is returned.
+    #
+    # Note that raising a StopIteraion inside the block will cause the loop to
+    # silently stop the iteration early.
 
     def before
       return to_enum(__callee__) unless block_given?
@@ -366,6 +387,9 @@ module Linked
 
     # Iterates over each item after this. If a block is not given an enumerator
     # is returned.
+    #
+    # Note that raising a StopIteraion inside the block will cause the loop to
+    # silently stop the iteration early.
 
     def after
       return to_enum(__callee__) unless block_given?
