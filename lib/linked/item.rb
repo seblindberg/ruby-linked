@@ -260,26 +260,20 @@ module Linked
     # Returns the last item that was appended.
 
     def append(object)
-      count = 1
       if object.respond_to? :item
-        first_item = object.item.send :extract_from
-        last_item = first_item
-        
-        loop do
-          last_item.list = @list
-          last_item = last_item.next
-          count += 1 # Must happen before last_item.next
-        end
+        first_item = object.item
+        last_item = first_item.send :extract_beginning_with, @list
       else
         first_item = last_item = self.class.new object
         first_item.list = @list
+        @list.send :grow if @list
       end
-
+      
+      # Hook up the item(s)
       first_item.prev = self
       @next.prev = last_item if @next
       @next, last_item.next = first_item, @next
       
-      @list.send :grow, count if @list
       last_item
     end
 
@@ -300,19 +294,14 @@ module Linked
     # Returns the last item that was prepended.
 
     def prepend(object)
-      count = 1
+      #count = 1
       if object.respond_to? :item
-        last_item = object.item.send :extract_upto
-        first_item = last_item
-        
-        loop do
-          first_item.list = @list
-          first_item = first_item.prev
-          count += 1 # Must happen before last_item.next
-        end
+        last_item = object.item
+        first_item = last_item.send :extract_ending_with, @list
       else
         first_item = last_item = self.class.new object
         first_item.list = @list
+        @list.send :grow, 1 if @list
       end
       
       # Hook up the item(s)
@@ -320,7 +309,6 @@ module Linked
       @prev.next = first_item if @prev
       @prev, first_item.prev = last_item, @prev
       
-      @list.send :grow, count if @list
       first_item
     end
     
@@ -348,11 +336,17 @@ module Linked
     # is the first item.
     
     def delete_before
-      prev.extract_upto unless first?
+      @prev.send :extract_ending_with unless first?
     end
     
+    # Remove all items after this one in the chain. If the items are part of a
+    # list they will be removed from it.
+    #
+    # Returns the last item in the chain that was just deleted, or nil if this
+    # is the first item.
+    
     def delete_after
-      
+      @next.send :extract_beginning_with unless last?
     end
 
     # Iterates over each item before this, in reverse order. If a block is not
@@ -403,68 +397,99 @@ module Linked
       value ? output + " value=#{value.inspect}" : output
     end
     
-    # PRIVATE DANGEROUS METHOD.
+    # PRIVATE DANGEROUS METHOD. This method should never be called directly
+    # since it may leave the extracted item chain in an invalid state.
     #
-    # This method should never be called directly since it leaves the extracted
-    # item chain in an invalid state. The following needs to be done immediately
-    # after this method returns:
-    # a) The list, if any, must be cleared from all items.
-    # b) @prev of the first item must be set.
+    # This method extracts the item, together with the chain following it, from
+    # the list they are in (if any) and optionally facilitates moving them to a
+    # new list.
     #
-    # Returns self.
+    # Given the two lists
+    #                         [ A <> B <> C ]   [ D ]
+    #                               (I)          (II)
+    #
+    # calling B.extract_beginning_with(II) will result in (B <> C) being removed
+    # from (I), and (II) to be grown by two. (B <> C) will now reference (II)
+    # but they will not yet be linked to any of the items in it. It is therefore
+    # necessary to insert them directly after calling this method, or (II) will
+    # be left in an invalid state.
+    #
+    # Returns the last item of the chain.
     
-    private def extract_from
-      if first?
-        @list.send :clear if in_list?
-        return self
+    private def extract_beginning_with(new_list = nil)
+      old_list = @list
+      # Count items and move them to the new list
+      last_item = self
+      count = 1 + loop.count do
+        last_item.list = new_list
+        last_item = last_item.next
       end
       
-      unless in_list?
-        @prev.next = nil
-        return self
+      # Make sure the old list is in a valid state
+      if old_list
+        if first?
+          old_list.send :clear
+        else
+          old_list.send :shrink, count
+          # Fix the links within in the list
+          @prev.next = last_item.next!
+          last_item.next!.prev = @prev
+        end
+      else
+        # Disconnect the item directly after the chain
+        @prev.next = nil unless first?
       end
       
-      item = self
-      count = 1 + loop.count { item = item.next }
+      # Disconnect the chain from the list
+      @prev = last_item.next = nil
       
-      @prev.next = item.next!
-      item.next!.prev = @prev
-      item.next = nil
+      # Preemptivly tell the new list to grow
+      new_list.send :grow, count if new_list
       
-      @list.send :shrink, count
-      self
+      last_item
     end
     
-    # PRIVATE DANGEROUS METHOD.
+    # PRIVATE DANGEROUS METHOD. This method should never be called directly
+    # since it may leave the extracted item chain in an invalid state.
     #
-    # This method should never be called directly since it leaves the extracted
-    # item chain in an invalid state. The following needs to be done immediately
-    # after this method returns:
-    # a) The list, if any, must be cleared from all items.
-    # b) @next of the last item must be set.
+    # This method extracts the item, together with the chain preceding it, from
+    # the list they are in (if any) and optionally facilitates moving them to a
+    # new list. See #extract_beginning_with for a description of the side
+    # effects from calling this method.
     #
-    # Returns self.
+    # Returns the first item in the chain.
     
-    private def extract_upto
-      if last?
-        @list.send :clear if in_list?
-        return self
+    private def extract_ending_with(new_list = nil)
+      old_list = @list
+      # Count items and move them to the new list
+      first_item = self
+      count = 1 + loop.count do
+        first_item.list = new_list
+        first_item = first_item.prev
       end
       
-      unless in_list?
-        @next.prev = nil
-        return self
+      # Make sure the old list is in a valid state
+      if old_list
+        if last?
+          old_list.send :clear
+        else
+          old_list.send :shrink, count
+          # Fix the links within in the list
+          @next.prev = first_item.prev!
+          first_item.prev!.next = @next
+        end
+      else
+        # Disconnect the item directly after the chain
+        @next.prev = nil unless last?
       end
       
-      item = self
-      count = 1 + loop.count { item = item.prev }
+      # Disconnect the chain from the list
+      first_item.prev = @next = nil
       
-      @next.prev = item.prev!
-      item.prev!.next = @next
-      item.prev = nil
+      # Preemptivly tell the new list to grow
+      new_list.send :grow, count if new_list
       
-      @list.send :shrink, count
-      self
+      first_item
     end
   end
 end

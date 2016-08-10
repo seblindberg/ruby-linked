@@ -396,6 +396,11 @@ describe Linked::Item do
       assert_same item_a, item_b.prev
       assert_same item_a, ret
     end
+    
+    it 'accepts any object responding to #item' do
+      list.expect :item, item_b
+      item_a.prepend list
+    end
 
     it 'only inserts the items before the given one' do
       item_a.append item_b
@@ -526,6 +531,86 @@ describe Linked::Item do
       head.verify
       tail.verify
       list.verify
+    end
+  end
+  
+  describe '#delete_before' do
+    before do
+      item_a.append(item_b).append(item_c)
+    end
+    
+    it 'returns nil when nothing is removed' do
+      assert_nil item_a.delete_before
+      assert_same item_b, item_a.next
+    end
+    
+    it 'returns the first item in the deleted chain' do
+      assert_same item_a, item_c.delete_before
+      assert_nil item_b.next!
+      assert_nil item_c.prev!
+    end
+    
+    it 'removes items from a list' do
+      head.expect :next=, nil, [item_a]
+      list.expect :grow, nil, [2]
+      
+      item_in_list.prepend item_b # grows the list by 2
+      
+      assert item_a.in_list?
+      assert item_b.in_list?
+        
+      list.verify && head.verify
+      
+      list.expect :shrink, nil, [2]
+      head.expect :nil?, true
+      head.expect :next=, nil, [item_in_list]
+      
+      item_in_list.delete_before
+      
+      refute item_a.in_list?
+      refute item_b.in_list?
+      
+      list.verify && head.verify
+    end
+  end
+  
+  describe '#delete_after' do
+    before do
+      item_a.append(item_b).append(item_c)
+    end
+
+    it 'returns nil when nothing is removed' do
+      assert_nil item_c.delete_after
+      assert_same item_b, item_c.prev
+    end
+
+    it 'returns the last item in the deleted chain' do
+      assert_same item_c, item_a.delete_after
+      assert_nil item_a.next!
+      assert_nil item_b.prev!
+    end
+
+    it 'removes items from a list' do
+      tail.expect :prev=, nil, [item_c]
+      list.expect :grow, nil, [2]
+
+      item_in_list.append item_b # grows the list by 2
+      
+      assert item_b.in_list?
+      assert item_c.in_list?
+
+      list.verify && tail.verify
+
+      list.expect :shrink, nil, [2]
+      tail.expect :nil?, true
+      tail.expect :prev=, nil, [item_in_list]
+
+      item_in_list.delete_after
+
+      refute item_b.in_list?
+      refute item_c.in_list?
+
+      list.verify && head.verify
     end
   end
 

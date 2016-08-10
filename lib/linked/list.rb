@@ -307,9 +307,15 @@ module Linked
       @item_count -= n
     end
     
+    # Private method to clear the list. Never call this method without also
+    # modifying the items in the list, as this operation leavs them in an
+    # inconsistant state. If the list items are kept, make sure to
+    # a) clear the `prev` pointer of the first item and
+    # b) clear the `next` pointer of the last item.
+    
     private def clear
-      head.next = tail
-      tail.prev = head
+      head.send :next=, tail
+      tail.send :prev=, head
       
       @item_count = 0
     end

@@ -87,7 +87,7 @@ describe Linked::List::EOL do
       
       assert_equal :value, eol.next.value
       
-      list.expect :grow, nil, [1]
+      list.expect :grow, nil
       eol.append :value_2
       
       assert_equal :value_2, eol.prev.value
