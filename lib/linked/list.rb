@@ -235,7 +235,7 @@ module Linked
     def each_item
       return to_enum(__method__) { count } unless block_given?
       return if empty?
-      
+
       item = eol
       loop { yield item = item.next }
     end
@@ -248,7 +248,7 @@ module Linked
     def reverse_each_item
       return to_enum(__method__) { count } unless block_given?
       return if empty?
-      
+
       item = eol
       loop { yield item = item.prev }
     end
