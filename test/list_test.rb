@@ -325,8 +325,10 @@ describe Linked::List do
       list.push item_b
     end
 
-    it 'returns an enumerator' do
-      assert_kind_of Enumerator, list.each_item
+    it 'returns a sized enumerator' do
+      enum = list.each_item
+      assert_kind_of Enumerator, enum
+      assert_kind_of Numeric, enum.size
     end
 
     it 'iterates over each item' do
@@ -348,8 +350,10 @@ describe Linked::List do
       list.push item_b
     end
 
-    it 'returns an enumerator' do
-      assert_kind_of Enumerator, list.reverse_each_item
+    it 'returns a sized enumerator' do
+      enum = list.reverse_each_item
+      assert_kind_of Enumerator, enum
+      assert_kind_of Numeric, enum.size
     end
 
     it 'iterates over each item in reverse' do
