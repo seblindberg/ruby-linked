@@ -144,6 +144,21 @@ module Linked
     def in?(list)
       @list.equal? list
     end
+    
+    # Item equality is solely determined by tha value. If the other object
+    # responds to #value, and its value is equal (#==) to this value, the
+    # objects are considered equal.
+    #
+    # other - any object.
+    #
+    # Returns true if the objects are considered equal.
+    
+    def ==(other)
+      return false unless other.respond_to? :value
+      value == other.value
+    end
+    
+    alias eql? ==
 
     # Access the next item in the list. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.

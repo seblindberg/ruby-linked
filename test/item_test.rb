@@ -116,6 +116,24 @@ describe Linked::Item do
       refute item.in?(list)
     end
   end
+  
+  describe '#==' do
+    it 'returns true if the item value equals the others' do
+      item_a.value = :a
+      item_b.value = :a
+      assert_operator item_a, :==, item_b
+    end
+    
+    it 'returns false if the item values does not equal the others' do
+      item_a.value = :a
+      item_b.value = :b
+      refute_operator item_a, :==, item_b
+    end
+    
+    it 'is aliased to #eql?' do
+      assert_equal item.method(:==), item.method(:eql?)
+    end
+  end
 
   describe '#next' do
     it 'returns the next item' do

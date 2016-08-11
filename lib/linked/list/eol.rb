@@ -59,7 +59,7 @@ module Linked
       # Return true if the chain is empty, otherwise nil.
 
       private def empty?
-        @prev == self
+        @prev.equal? self
       end
     end
   end
