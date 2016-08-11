@@ -29,6 +29,37 @@ describe Linked::List do
       assert_same list, list.list
     end
   end
+  
+  describe '#==' do
+    let(:list_a) do
+      item_a.value = :value
+      item_b.value = :value
+      list << item_a << item_b
+    end
+    let(:list_b) { list_a.dup }
+    
+    it 'returns false if the other object is not a list' do
+      object = Minitest::Mock.new
+      object.expect :is_a?, false, [subject]
+      refute_operator list, :==, object
+      object.verify
+    end
+    
+    it 'returns true for lists with items with equal values' do
+      refute_same list_a, list_b
+      assert_equal list_a, list_b
+    end
+    
+    it 'returns false for lists with items that are not equal' do
+      list_b.last.value = :not_value
+      refute_equal list_a, list_b
+    end
+    
+    it 'returns false for lists of unequal length' do
+      list_b.pop
+      refute_equal list_a, list_b
+    end
+  end
 
   describe '#first' do
     it 'returns nil for empty lists' do

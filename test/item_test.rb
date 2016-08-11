@@ -119,15 +119,24 @@ describe Linked::Item do
   
   describe '#==' do
     it 'returns true if the item value equals the others' do
-      item_a.value = :a
-      item_b.value = :a
-      assert_operator item_a, :==, item_b
+      item.value = :value
+      
+      object = Minitest::Mock.new
+      object.expect :value, :value
+      
+      assert_operator item, :==, object
+      object.verify
     end
     
     it 'returns false if the item values does not equal the others' do
       item_a.value = :a
       item_b.value = :b
       refute_operator item_a, :==, item_b
+    end
+    
+    it 'returns false if the other object does not respond to #value' do
+      object = Minitest::Mock.new
+      refute_operator item, :==, object
     end
     
     it 'is aliased to #eql?' do
