@@ -159,6 +159,14 @@ module Linked
     end
     
     alias eql? ==
+    
+    # Uses the hash value of the item value.
+    #
+    # Returns a fixnum that can be used by Hash to identify the item.
+    
+    def hash
+      value.hash
+    end
 
     # Access the next item in the list. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.

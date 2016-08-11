@@ -143,6 +143,22 @@ describe Linked::Item do
       assert_equal item.method(:==), item.method(:eql?)
     end
   end
+  
+  describe '#hash' do
+    it 'returns the same hash for items with equal values' do
+      item_a.value = :value
+      item_b.value = :value
+      
+      assert_equal item_a.hash, item_b.hash
+    end
+    
+    it 'returns different hashes for items with different values' do
+      item_a.value = :a
+      item_b.value = :b
+      
+      refute_equal item_a.hash, item_b.hash
+    end
+  end
 
   describe '#next' do
     it 'returns the next item' do
