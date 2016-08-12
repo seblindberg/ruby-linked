@@ -3,22 +3,9 @@
 module Linked
   # List
   #
-  # This module can be included in any class to give it list like behaviour.
-  # Most importantly, the methods #head, #tail, #grow and #shrink are
-  # implemented to comply with the requirements defined by Item.
-  #
-  # Example
-  #
-  #   class ListLike
-  #     include Linked::List
-  #
-  #     def initialize
-  #       super
-  #       ...
-  #
-  # A key implementation detail is the End-Of-List, or EOL object that sits
-  # between the list and the actual list items. It provides separation between
-  # the list and the actual list items.
+  # This class implements a linked list. Most importantly, the methods #head,
+  # #tail, #grow, #shrink and #create_item are implemented to comply with the
+  # requirements defined by Listable.
 
   class List
     include Enumerable
