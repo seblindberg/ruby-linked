@@ -25,84 +25,84 @@ module Linked
   # Single items are denoted with capital letters (i), while chains are written
   # as multiple connected items (ii). The parenthesis are optional. To show that
   # one or more nodes are wraped in a list, angle brackets are used (iii).
-  
+
   module Listable
     # Creates a new item. Always make a call to super whenever implementing this
     # method in a subclass.
-    
+
     def initialize(*)
       @_next = @_prev = @_list = nil
       super
     end
-    
+
     # Calling #dup on an item returns a copy that is no longer connected to the
     # original item chain, or the list. The value will also be copied.
     #
     # Returns a new Item.
-    
+
     def initialize_copy(*)
       @_next = @_prev = @_list = nil
       super
     end
-    
+
     # Identity method that simply return the item. This method mirrors List#item
     # and allows other methods that work on Item objects to easily and
     # interchangebly accept both lists and items as arguments.
     #
     # Returns the item itself.
-    
+
     def item
       self
     end
-    
+
     # Access the list that the item is part of. If the item is not in a list a
     # NoMethodError will be raised. This mirrors the behaviour of List#list and
     # allows other methods that work on List objects to easily and
     # interchangeably accept both lists and items as arguments.
     #
     # Returns the list that the item is part of.
-    
+
     def list
       raise NoMethodError unless @_list
       @_list
     end
-    
+
     # Check it the item is part of a list.
     #
     # Returns true if the item is in a list.
-    
+
     def in_list?
       @_list ? true : false
     end
-    
+
     # Check if this is the first item in the list. It is crucial that tail#nil?
     # returns true for the first item to be identified correctly.
     #
     # Returns true if no item come before this one.
-    
+
     def first?
       @_prev.nil?
     end
-    
+
     # Check if this is the last item in the list. It is crucial that head#nil?
     # returns true for the last item to be identified correctly.
     #
     # Returns true if no item come after this one.
-    
+
     def last?
       @_next.nil?
     end
-    
+
     # Check if the item is in the given list.
     #
     # list - any object.
     #
     # Returns true if the item is part of the given list.
-    
+
     def in?(list)
       @_list.equal? list
     end
-    
+
     # Access the next item in the list. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.
     #
@@ -112,12 +112,12 @@ module Linked
     #   end
     #
     # Returns the item that come after this.
-    
+
     def next
       raise StopIteration if last?
       @_next
     end
-    
+
     # Access the previous item in the list. If this is the first one a
     # StopIteration will be raised, so that items may be iterated over safely in
     # a loop.
@@ -128,14 +128,14 @@ module Linked
     #   end
     #
     # Returns the item that come before this.
-    
+
     def prev
       raise StopIteration if first?
       @_prev
     end
-    
+
     alias previous prev
-    
+
     # Inserts the given item between this one and the one after it (if any). If
     # the given item is part of a chain, all items following it will be moved to
     # this one, and added to the list if one is set.
@@ -156,7 +156,7 @@ module Linked
     #          List#create_item.
     #
     # Returns the last item that was appended.
-    
+
     def append(object)
       if object.respond_to? :item
         first_item = object.item
@@ -170,14 +170,14 @@ module Linked
           first_item = last_item = create_item object
         end
       end
-    
+
       first_item.prev = self
       @_next.prev = last_item if @_next
       @_next, last_item.next = first_item, @_next
-    
+
       last_item
     end
-    
+
     # Inserts the given item between this one and the one before it (if any). If
     # the given item is part of a chain, all items preceeding it will be moved
     # to this one, and added to the list if one is set.
@@ -198,7 +198,7 @@ module Linked
     #          via List#create_item.
     #
     # Returns the last item that was prepended.
-    
+
     def prepend(object)
       if object.respond_to? :item
         last_item = object.item
@@ -212,14 +212,14 @@ module Linked
           first_item = last_item = create_item object
         end
       end
-    
+
       last_item.next = self
       @_prev.next = first_item if @_prev
       @_prev, first_item.prev = last_item, @_prev
-    
+
       first_item
     end
-    
+
     # Remove an item from the chain. If this item is part of a list and is
     # either first, last or both in that list, #next= and #prev= will be called
     # on the list head and tail respectivly.
@@ -227,72 +227,72 @@ module Linked
     # If this item is part of a list #shrink will be called on it.
     #
     # Returns self.
-    
+
     def delete
       @_next.prev = @_prev if @_next
       @_prev.next = @_next if @_prev
       @_list.send :shrink if @_list
-    
+
       @_next = @_prev = @_list = nil
       self
     end
-    
+
     # Remove all items before this one in the chain. If the items are part of a
     # list they will be removed from it.
     #
     # Returns the last item in the chain that was just deleted, or nil if this
     # is the first item.
-    
+
     def delete_before
       @_prev.send :extract_ending_with unless first?
     end
-    
+
     # Remove all items after this one in the chain. If the items are part of a
     # list they will be removed from it.
     #
     # Returns the last item in the chain that was just deleted, or nil if this
     # is the first item.
-    
+
     def delete_after
       @_next.send :extract_beginning_with unless last?
     end
-    
+
     # Iterates over each item before this, in reverse order. If a block is not
     # given an enumerator is returned.
     #
     # Note that raising a StopIteraion inside the block will cause the loop to
     # silently stop the iteration early.
-    
+
     def before
       return to_enum(__callee__) unless block_given?
       return if first?
-    
+
       item = self.prev
-    
+
       loop do
         yield item
         item = item.prev
       end
     end
-    
+
     # Iterates over each item after this. If a block is not given an enumerator
     # is returned.
     #
     # Note that raising a StopIteraion inside the block will cause the loop to
     # silently stop the iteration early.
-    
+
     def after
       return to_enum(__callee__) unless block_given?
       return if last?
-    
+
       item = self.next
-    
+
       loop do
         yield item
         item = item.next
       end
     end
-    
+
     # Protected factory method for creating items compatible with this listable
     # item. This method is called whenever an arbitrary object is appended or
     # prepended onto this item and need to be wraped/converted.
@@ -302,47 +302,47 @@ module Linked
     # args - any arguments will be passed on to .new.
     #
     # Returns a new Listable object.
-    
+
     protected def create_item(*args)
       self.class.new(*args)
     end
-    
+
     # Protected unsafe accessor of the next item in the list. It is preferable
     # to use #next, possibly in conjunction with #last?.
     #
     # Returns the item that come after this, or nil if this is the last one.
-    
+
     protected def next!
       @_next
     end
-    
+
     # Calling #next= directly is not recommended since it may corrupt the chain.
-    
+
     protected def next=(other)
       @_next = other
     end
-    
+
     # Protected, unsafe accessor of the previous item in the list. It is
     # preferable to use #prev, possibly in conjunction with #first?.
     #
     # Returns the item that come before this, or nil if this is the first one.
-    
+
     protected def prev!
       @_prev
     end
-    
+
     # Calling #prev= directly is not recommended since it may corrupt the chain.
-    
+
     protected def prev=(other)
       @_prev = other
     end
-    
+
     # Calling #list= directly is not recommended since it may corrupt the list.
-    
+
     protected def list=(list)
       @_list = list
     end
-    
+
     # PRIVATE DANGEROUS METHOD. This method should never be called directly
     # since it may leave the extracted item chain in an invalid state.
     #
@@ -361,7 +361,7 @@ module Linked
     # be left in an invalid state.
     #
     # Returns the last item of the chain.
-    
+
     private def extract_beginning_with(new_list = nil)
       old_list = @_list
       # Count items and move them to the new list
@@ -370,7 +370,7 @@ module Linked
         last_item.list = new_list
         last_item = last_item.next
       end
-    
+
       # Make sure the old list is in a valid state
       if old_list
         if first?
@@ -385,16 +385,16 @@ module Linked
         # Disconnect the item directly after the chain
         @_prev.next = nil unless first?
       end
-    
+
       # Disconnect the chain from the list
       @_prev = last_item.next = nil
-    
+
       # Preemptivly tell the new list to grow
       new_list.send :grow, count if new_list
-    
+
       last_item
     end
-    
+
     # PRIVATE DANGEROUS METHOD. This method should never be called directly
     # since it may leave the extracted item chain in an invalid state.
     #
@@ -404,7 +404,7 @@ module Linked
     # effects from calling this method.
     #
     # Returns the first item in the chain.
-    
+
     private def extract_ending_with(new_list = nil)
       old_list = @_list
       # Count items and move them to the new list
@@ -413,7 +413,7 @@ module Linked
         first_item.list = new_list
         first_item = first_item.prev
       end
-    
+
       # Make sure the old list is in a valid state
       if old_list
         if last?
@@ -428,13 +428,13 @@ module Linked
         # Disconnect the item directly after the chain
         @_next.prev = nil unless last?
       end
-    
+
       # Disconnect the chain from the list
       first_item.prev = @_next = nil
-    
+
       # Preemptivly tell the new list to grow
       new_list.send :grow, count if new_list
-    
+
       first_item
     end
   end

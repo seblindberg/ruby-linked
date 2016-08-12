@@ -20,10 +20,10 @@ module Linked
 
     class EOL
       include Listable
-      
+
       # Calling #delete on the EOL is not supported and will break the
       # connection between the list and its items.
-      
+
       private :delete
 
       def initialize(list)
@@ -58,11 +58,11 @@ module Linked
       def prepend(object)
         empty? ? super : next!.prepend(object)
       end
-      
+
       # Private helper to reset the EOL to its initial state. This method should
       # never be called directly as it leaves the both the list and the items in
       # an inconsistant state.
-      
+
       private def reset
         self.prev = self.next = self
       end

@@ -5,7 +5,7 @@ module Linked
   #
   # This class implements a listable value object that wraps an arbitrary value
   # an can be stored in a list.
-  
+
   class Item
     include Listable
 
@@ -48,18 +48,18 @@ module Linked
     # other - any object.
     #
     # Returns true if the objects are considered equal.
-    
+
     def ==(other)
       return false unless other.respond_to? :value
       value == other.value
     end
-    
+
     alias eql? ==
-    
+
     # Uses the hash value of the item value.
     #
     # Returns a fixnum that can be used by Hash to identify the item.
-    
+
     def hash
       value.hash
     end

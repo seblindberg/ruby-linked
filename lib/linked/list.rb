@@ -55,21 +55,21 @@ module Linked
       raise NoMethodError if empty?
       head.next
     end
-    
+
     # Two lists are considered equal if the n:th item from each list are equal.
     #
     # other - any object.
     #
     # Returns true if the given object is a list and the items are equal.
-    
+
     def ==(other)
       return false unless other.is_a? self.class
       return false unless other.count == @_item_count
-      
+
       other_items = other.each_item
       each_item.all? { |item| item == other_items.next }
     end
-    
+
     alias eql? ==
 
     # Access the first n item(s) in the list. If a block is given each item will
@@ -285,13 +285,13 @@ module Linked
     protected def create_item(*args)
       Item.new(*args)
     end
-    
+
     # Returns an object that responds to #next= and #prepend.
-    
+
     protected def head
       @_eol
     end
-    
+
     # Returns an object that responds to #prev= and #append.
 
     alias tail head
