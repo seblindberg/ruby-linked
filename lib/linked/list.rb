@@ -370,7 +370,7 @@ module Linked
     protected def first_item_after(item, n, items_left = @item_count)
       # Optimize for these cases
       return nil if n == 0
-      return n > 1 ? [] : nil if item.next!.nil?
+      return n > 1 ? [] : nil if item.last?
       return item.next if n == 1
 
       n = items_left if n > items_left
@@ -402,7 +402,7 @@ module Linked
     protected def last_item_before(item, n, items_left = @item_count)
       # Optimize for these cases
       return nil if n == 0
-      return n > 1 ? [] : nil if item.prev!.nil?
+      return n > 1 ? [] : nil if item.first?
       return item.prev if n == 1
 
       n = items_left if n > items_left

@@ -193,8 +193,8 @@ describe Linked::List do
       list.push item
 
       assert_same list, item.list
-      assert_nil item.prev!
-      assert_nil item.next!
+      assert item.first?
+      assert item.last?
       assert_equal 1, list.count
     end
 
@@ -238,7 +238,7 @@ describe Linked::List do
       list.push item_b
       list.pop
 
-      assert_nil item_a.next!
+      assert item_a.last?
       assert_equal 1, list.count
     end
 
@@ -268,8 +268,8 @@ describe Linked::List do
       list.unshift item
 
       assert_same list, item.list
-      assert_nil item.prev!
-      assert_nil item.next!
+      assert item.first?
+      assert item.last?
       assert_equal 1, list.count
     end
 
@@ -309,7 +309,7 @@ describe Linked::List do
       list.push item_b
       list.shift
 
-      assert_nil item_b.prev!
+      assert item_b.first?
       assert_equal 1, list.count
     end
 

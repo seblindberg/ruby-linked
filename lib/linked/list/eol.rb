@@ -18,8 +18,9 @@ module Linked
     #     +-| prev | next |<- ... ->| prev | next |-+
     #       +------+------+         +------+------+
 
-    class EOL < Item
-      private :value, :value=, :delete, :first?, :last?
+    class EOL
+      include Listable
+      private :delete
 
       def initialize(list:)
         super()

@@ -16,11 +16,7 @@ describe Linked::List::EOL do
     eol
   end
   
-  describe '#first?' do
-    it 'is private' do
-      assert eol.private_methods.include?(:first?)
-    end
-    
+  describe '#first?' do    
     it 'returns true when there are no items' do
       assert eol.send :first?
     end
@@ -31,11 +27,7 @@ describe Linked::List::EOL do
   end
   
   describe '#last?' do
-    it 'is private' do
-      assert eol.private_methods.include?(:last?)
-    end
-
-    it 'returns true' do
+    it 'returns true when there are no items' do
       assert eol.send :last?
     end
     
