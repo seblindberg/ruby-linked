@@ -28,8 +28,8 @@ module Linked
 
       def initialize(list)
         super()
-        @list = list
-        @prev = @next = self
+        self.list = list
+        self.prev = self.next = self
       end
 
       # EOL objects will return true when asked if they are nil. This is
@@ -48,7 +48,7 @@ module Linked
       # See Item#append for more details.
 
       def append(object)
-        empty? ? super : @prev.append(object)
+        empty? ? super : prev!.append(object)
       end
 
       # Inserts one or more items at the beginning of the list.
@@ -56,7 +56,7 @@ module Linked
       # See Item#append for more details.
 
       def prepend(object)
-        empty? ? super : @next.prepend(object)
+        empty? ? super : next!.prepend(object)
       end
 
       # Private helper to check if the item chain is empty.
@@ -64,7 +64,7 @@ module Linked
       # Return true if the chain is empty, otherwise nil.
 
       private def empty?
-        @prev.equal? self
+        prev!.equal? self
       end
     end
   end
