@@ -7,7 +7,7 @@ class Item
   
   def initialize(*args)
     @args = args
-    super
+    super()
   end
 end
 
@@ -15,7 +15,7 @@ describe Linked::Listable do
   subject { ::Item }
 
   let(:item) { subject.new }
-  let(:item_in_list) { subject.new(list: list) }
+  let(:item_in_list) { subject.new.tap { |s| list.append s } }
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
   let(:item_c) { subject.new }
@@ -26,26 +26,14 @@ describe Linked::Listable do
   let(:tail) { Minitest::Mock.new }
   let(:list) do
     mock = Minitest::Mock.new
-    mock.expect :tail, tail
-    tail.expect(:append, nil) do |item|
+    #mock.expect :tail, tail
+    mock.expect(:append, nil) do |item|
+      item.send :list=, mock
       item.send :next=, tail
       item.send :prev=, head
       true
     end
     mock
-  end
-
-  describe '.new' do
-    it 'accepts a list object responding to #tail' do
-      item = nil
-      tail.expect :nil?, true
-
-      item = subject.new list: list
-      assert item.last?
-
-      list.verify
-      tail.verify
-    end
   end
 
   describe '#item' do
@@ -70,8 +58,8 @@ describe Linked::Listable do
     end
 
     it 'returns false when the item is not in a list' do
-        refute item.in_list?
-      end
+      refute item.in_list?
+    end
   end
 
   describe '#first?' do
@@ -113,7 +101,8 @@ describe Linked::Listable do
   describe '#in?' do
     it 'returns true if the item is in the list' do
       list.expect :equal?, true, [list]
-      item = subject.new list: list
+      #item = subject.new list: list
+      list.append item
       assert item.in?(list)
     end
 
@@ -147,14 +136,6 @@ describe Linked::Listable do
 
     it 'is aliased to #previous' do
       assert_equal item.method(:prev), item.method(:previous)
-    end
-  end
-
-  describe '#list' do
-    it 'returns the list if one was given' do
-      item = subject.new list: list
-
-      assert_equal list.object_id, item.list.object_id
     end
   end
 
@@ -209,7 +190,6 @@ describe Linked::Listable do
 
       tail.verify
       list.verify
-      #assert_equal sibling.next!.object_id, tail.object_id
     end
 
     it 'inserts multiple connected items when in a list' do
@@ -252,8 +232,17 @@ describe Linked::Listable do
       assert_kind_of subject, item.next
       assert_equal [:argument], item.next.args
     end
+    
+    it 'accepts any number of arguments' do
+      item.append :argument
+  
+      assert_kind_of subject, item.next
+      assert_equal [:argument], item.next.args
+    end
 
     it 'asks the list to create the item when given a value' do
+      item_in_list && list.verify
+      
       list.expect :create_item, item, [:value]
       list.expect :grow, nil
       tail.expect :prev=, nil, [item]

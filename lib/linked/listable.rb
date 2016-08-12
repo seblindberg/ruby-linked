@@ -1,20 +1,17 @@
 module Linked
   # Listable
+  #                               List (optional)
+  #                           +----^-----+
+  #                   prev <- | Listable | -> next
+  #                           +----------+
   #
   # This module implements doubly linked list items, designed to work both on
-  # their own and as children of list.
+  # their own in a chain, and as children of list.
   #
-  #             +- - - +    +------+------+            +- - - +
-  #             | Head | <--| prev | next |--> ... --> | Tail |
-  #             + - - -+    +------+------+            + - - -+
-  #            (optional)     First Item     N Items  (optional)
-  #
-  # An object is considered a list if it responds to #head, #tail, #grow and
-  # #shrink. The latter facilitate counting of the items and will be called
-  # everytime an item is appended, prepended or deleted. #head and #tail are
-  # expected to return two objects that, respectivly
-  # a) responds to #next= and #append, or #prev= and #prepend and
-  # b) returns true for #nil?.
+  # An object is considered a list if it responds to #grow, #shrink and
+  # #create_item. The former two facilitate counting of the items and will be
+  # called everytime an item is appended, prepended or deleted. #create_item is
+  # expected to return a new object that is compatible with the list.
   #
   # Notation
   # --------
@@ -44,19 +41,12 @@ module Linked
     attr_writer :prev, :next
     protected :prev=, :next=
     
-    # Creates a new item. If a list is given the item will be made a part of
-    # it by appending itself to the end.
-    #
-    # list - an object responding to #head and #tail.
+    # Creates a new item. Always make a call to super whenever implementing this
+    # method in a subclass.
     
-    def initialize(*, list: nil)
-      @list = list
-      if list
-        list.tail.append self
-      else
-        @next = nil
-        @prev = nil
-      end
+    def initialize
+      @next = @prev = @list = nil
+      super
     end
     
     # Calling #dup on an item returns a copy that is no longer connected to the

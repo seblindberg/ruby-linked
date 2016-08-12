@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module Linked
+  # Item
+  #
+  # This class implements a listable value object that wraps an arbitrary object
+  # an can be stored in a list.
+  
   class Item
     include Listable
 
@@ -19,7 +24,7 @@ module Linked
 
     def initialize(value = nil, list: nil)
       @value = value
-      super
+      super()
     end
 
     # Calling #dup on an item returns a copy that is no longer connected to the

@@ -4,7 +4,7 @@ describe Linked::Item do
   subject { ::Linked::Item }
 
   let(:item) { subject.new }
-  let(:item_in_list) { subject.new(list: list) }
+  let(:item_in_list) { subject.new.tap { |s| list.tail.append s } }
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
   let(:item_c) { subject.new }
@@ -28,15 +28,6 @@ describe Linked::Item do
     it 'accepts a value' do
       item = subject.new :value
       assert_equal :value, item.value
-    end
-
-    it 'accepts a list object responding to #tail' do
-      item = nil
-
-      item = subject.new list: list
-
-      list.verify
-      tail.verify
     end
   end
   
@@ -80,44 +71,6 @@ describe Linked::Item do
       item_b.value = :b
       
       refute_equal item_a.hash, item_b.hash
-    end
-  end
-
-  describe '#append' do
-    it 'accepts a value' do
-      item.append :value
-
-      assert_kind_of subject, item.next
-      assert_equal :value, item.next.value
-    end
-
-    it 'asks the list to create the item when given a value' do
-      list.expect :create_item, item, [:value]
-      list.expect :grow, nil
-      tail.expect :prev=, nil, [item]
-
-      item_in_list.append :value
-
-      list.verify
-    end
-  end
-
-  describe '#prepend' do
-    it 'accepts a value' do
-      item.prepend :value
-
-      assert_kind_of subject, item.prev
-      assert_equal :value, item.prev.value
-    end
-
-    it 'asks the list to create the item when given a value' do
-      list.expect :create_item, item, [:value]
-      list.expect :grow, nil
-      head.expect :next=, nil, [item]
-
-      item_in_list.prepend :value
-
-      list.verify
     end
   end
 
