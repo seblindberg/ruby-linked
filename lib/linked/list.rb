@@ -23,29 +23,13 @@ module Linked
   module List
     include Enumerable
 
-    # Private accessor method for the End-Of-List object.
-    #
-    # Returns a List::EOL object.
-
-    attr_reader :eol
-    private :eol
-
-    # Returns an object that responds to #next= and #prepend.
-
-    alias head eol
-
-    # Returns an object that responds to #prev= and #append.
-
-    alias tail eol
-
-    # Initializes the list by setting the two instance variable @item_count and
-    # @eol. It is important that this method be called during the initialization
-    # of the including class, and that the instance variables never be accessed
-    # directly.
+    # Initializes the list. It is important that this method be called during
+    # the initialization of the including class, and that the instance variables
+    # @_item_count and @_eol never be accessed directly.
 
     def initialize(*)
-      @eol = EOL.new self
-      @item_count = 0
+      @_eol = EOL.new self
+      @_item_count = 0
 
       super
     end
@@ -55,8 +39,8 @@ module Linked
     # this operation quite expensive.
 
     def initialize_dup(source)
-      @eol = EOL.new self
-      @item_count = 0
+      @_eol = EOL.new self
+      @_item_count = 0
 
       source.each_item { |item| push item.dup  }
 
@@ -82,7 +66,7 @@ module Linked
 
     def item
       raise NoMethodError if empty?
-      eol.next
+      head.next
     end
     
     # Two lists are considered equal if the n:th item from each list are equal.
@@ -93,7 +77,7 @@ module Linked
     
     def ==(other)
       return false unless other.is_a? self.class
-      return false unless other.count == @item_count
+      return false unless other.count == @_item_count
       
       other_items = other.each_item
       each_item.all? { |item| item == other_items.next }
@@ -117,9 +101,9 @@ module Linked
     def first(n = 1)
       raise ArgumentError, 'n cannot be negative' if n < 0
 
-      return first_item_after eol, n, count unless block_given?
+      return first_item_after head, n, count unless block_given?
 
-      item = eol
+      item = head
       items_left = count
 
       items_left.times do
@@ -147,9 +131,9 @@ module Linked
     def last(n = 1)
       raise ArgumentError, 'n cannot be negative' if n < 0
 
-      return last_item_before eol, n, count unless block_given?
+      return last_item_before tail, n, count unless block_given?
 
-      item = eol
+      item = tail
       items_left = count
 
       items_left.times do
@@ -171,7 +155,7 @@ module Linked
 
     def count(*args)
       if args.empty? && !block_given?
-        @item_count
+        @_item_count
       else
         super
       end
@@ -180,7 +164,7 @@ module Linked
     # Returns true if the list does not contain any items.
 
     def empty?
-      @item_count == 0
+      @_item_count == 0
     end
 
     # Insert an item at the end of the list. If the given object is not an
@@ -194,7 +178,7 @@ module Linked
     # Returns self.
 
     def push(object)
-      eol.append object
+      tail.append object
       self
     end
 
@@ -220,7 +204,7 @@ module Linked
     # Returns self.
 
     def unshift(object)
-      eol.prepend object
+      head.prepend object
       self
     end
 
@@ -252,7 +236,7 @@ module Linked
       return to_enum(__method__) { count } unless block_given?
       return if empty?
 
-      item = eol
+      item = head
       loop { yield item = item.next }
     end
 
@@ -265,7 +249,7 @@ module Linked
       return to_enum(__method__) { count } unless block_given?
       return if empty?
 
-      item = eol
+      item = tail
       loop { yield item = item.prev }
     end
 
@@ -275,7 +259,7 @@ module Linked
     # (eol).
 
     def freeze
-      eol.freeze
+      @_eol.freeze
       each_item(&:freeze)
       super
     end
@@ -314,6 +298,16 @@ module Linked
     protected def create_item(*args)
       Item.new(*args)
     end
+    
+    # Returns an object that responds to #next= and #prepend.
+    
+    protected def head
+      @_eol
+    end
+    
+    # Returns an object that responds to #prev= and #append.
+
+    alias tail head
 
     # Internal method to grow the list with n elements. Never call this method
     # without also inserting the n elements.
@@ -323,7 +317,7 @@ module Linked
     # Returns updated the item count.
 
     private def grow(n = 1)
-      @item_count += n
+      @_item_count += n
     end
 
     # Internal method to shrink the list with n elements. Never call this method
@@ -334,7 +328,7 @@ module Linked
     # Returns updated the item count.
 
     private def shrink(n = 1)
-      @item_count -= n
+      @_item_count -= n
     end
 
     # Private method to clear the list. Never call this method without also
@@ -344,11 +338,11 @@ module Linked
     # b) clear the `next` pointer of the last item.
 
     private def clear
-      @eol.send :reset
-      @item_count = 0
+      @_eol.send :reset
+      @_item_count = 0
     end
 
-    # Protected helper method that returns the first n items, starting just
+    # Private helper method that returns the first n items, starting just
     # after item, given that there are items_left items left. Knowing the exact
     # number of items left is not cruicial but does impact speed. The number
     # should not be lower than the actual ammount. The following must
@@ -365,7 +359,7 @@ module Linked
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
 
-    protected def first_item_after(item, n, items_left = @item_count)
+    private def first_item_after(item, n, items_left = @_item_count)
       # Optimize for these cases
       return nil if n == 0
       return n > 1 ? [] : nil if item.last?
@@ -380,7 +374,7 @@ module Linked
       arr.compact! || arr
     end
 
-    # Protected helper method that returns the last n items, ending just before
+    # Private helper method that returns the last n items, ending just before
     # item,  given that there are items_left items left. Knowing the exact
     # number of items left is not cruicial but does impact speed. The number
     # should not be lower than the actual ammount. The following must hold for
@@ -397,7 +391,7 @@ module Linked
     # n == 1) an item if items_left > 0 or nil
     #  n > 1) an array of items if items_left > 0 or an empty array
 
-    protected def last_item_before(item, n, items_left = @item_count)
+    private def last_item_before(item, n, items_left = @_item_count)
       # Optimize for these cases
       return nil if n == 0
       return n > 1 ? [] : nil if item.first?
