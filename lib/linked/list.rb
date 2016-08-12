@@ -344,9 +344,7 @@ module Linked
     # b) clear the `next` pointer of the last item.
 
     private def clear
-      head.send :next=, tail
-      tail.send :prev=, head
-
+      @eol.send :reset
       @item_count = 0
     end
 

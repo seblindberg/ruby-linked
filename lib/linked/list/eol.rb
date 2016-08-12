@@ -29,7 +29,7 @@ module Linked
       def initialize(list)
         super()
         self.list = list
-        self.prev = self.next = self
+        reset
       end
 
       # EOL objects will return true when asked if they are nil. This is
@@ -57,6 +57,14 @@ module Linked
 
       def prepend(object)
         empty? ? super : next!.prepend(object)
+      end
+      
+      # Private helper to reset the EOL to its initial state. This method should
+      # never be called directly as it leaves the both the list and the items in
+      # an inconsistant state.
+      
+      private def reset
+        self.prev = self.next = self
       end
 
       # Private helper to check if the item chain is empty.
