@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# TODO: Think about moving some of basic functionallity of Item into Item::Base.
+# TODO: Think about moving some of basic functionallity of Item into Listable.
 
 module Linked
   # Item
@@ -47,7 +47,7 @@ module Linked
 
     attr_accessor :value
 
-    # Calling either #prev= or #next= directly is not recommended, since can
+    # Calling either #prev= or #next= directly is not recommended since it may
     # corrupt the chain.
 
     attr_writer :prev, :next
