@@ -36,13 +36,8 @@ A basic use case is show below. For more details, for now, see the docs.
 ```ruby
 require 'linked'
 
-# Include the List module in a class
-class ListLike
-  include Linked::List    
-end
-
 # Create a list
-list = ListLike.new
+list = Linked::List.new
 
 # Append values
 list << :value
