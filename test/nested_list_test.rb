@@ -1,10 +1,15 @@
 require 'test_helper'
 
-class NestedListItem < Linked::Item
-  include Linked::List
+# Creates a list that is itself listable
+
+class NestedListItem < Linked::List
+  include Linked::Listable
   
-  protected def create_item(*args)
-    self.class.new(*args)
+  attr_accessor :value
+  
+  def initialize(value = nil)
+    super()
+    @value = value
   end
 end
 

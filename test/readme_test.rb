@@ -3,13 +3,8 @@ require 'test_helper'
 describe 'README.md' do
   describe 'usage' do
     it 'works as promised' do
-      # Include the List module in a class
-      class ListLike
-        include Linked::List
-      end
-
       # Create a list
-      list = ListLike.new
+      list = Linked::List.new
 
       # Append values
       list << :value

@@ -3,7 +3,7 @@
 module Linked
   # Item
   #
-  # This class implements a listable value object that wraps an arbitrary object
+  # This class implements a listable value object that wraps an arbitrary value
   # an can be stored in a list.
   
   class Item
@@ -22,7 +22,7 @@ module Linked
     #
     # Returns a new Item.
 
-    def initialize(value = nil, list: nil)
+    def initialize(value = nil)
       @value = value
       super()
     end

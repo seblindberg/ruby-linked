@@ -30,7 +30,7 @@ module Linked
     # Creates a new item. Always make a call to super whenever implementing this
     # method in a subclass.
     
-    def initialize
+    def initialize(*)
       @_next = @_prev = @_list = nil
       super
     end
@@ -167,7 +167,7 @@ module Linked
           first_item.list = @_list
           @_list.send :grow
         else
-          first_item = last_item = self.class.new object
+          first_item = last_item = create_item object
         end
       end
     
@@ -209,7 +209,7 @@ module Linked
           first_item.list = @_list
           @_list.send :grow
         else
-          first_item = last_item = self.class.new object
+          first_item = last_item = create_item object
         end
       end
     
@@ -292,7 +292,21 @@ module Linked
         item = item.next
       end
     end
-        
+    
+    # Protected factory method for creating items compatible with this listable
+    # item. This method is called whenever an arbitrary object is appended or
+    # prepended onto this item and need to be wraped/converted.
+    #
+    # This method can be overridden to support different behaviours.
+    #
+    # args - any arguments will be passed on to .new.
+    #
+    # Returns a new Listable object.
+    
+    protected def create_item(*args)
+      self.class.new(*args)
+    end
+    
     # Protected unsafe accessor of the next item in the list. It is preferable
     # to use #next, possibly in conjunction with #last?.
     #

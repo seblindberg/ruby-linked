@@ -1,7 +1,7 @@
 require 'test_helper'
 
 describe Linked::List do
-  subject { ListLike }
+  subject { Linked::List }
 
   let(:list) { subject.new }
   let(:item) { Linked::Item.new }

@@ -20,14 +20,14 @@ module Linked
   # between the list and the actual list items. It provides separation between
   # the list and the actual list items.
 
-  module List
+  class List
     include Enumerable
 
     # Initializes the list. It is important that this method be called during
     # the initialization of the including class, and that the instance variables
     # @_item_count and @_eol never be accessed directly.
 
-    def initialize(*)
+    def initialize
       @_eol = EOL.new self
       @_item_count = 0
 
@@ -289,7 +289,7 @@ module Linked
     # method is called whenever an arbitrary object is pushed or unshifted onto
     # the list and need to be wraped inside an Item.
     #
-    # This method can be overridden to suport different Item types.
+    # This method can be overridden to support different Item types.
     #
     # args - any arguments will be passed on to Item.new.
     #

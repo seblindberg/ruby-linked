@@ -1,5 +1,5 @@
 module Linked
-  module List
+  class List
     # End Of List
     #
     # This class implements a special list item that is placed at both the end
