@@ -44,7 +44,7 @@ module Linked
     # directly.
 
     def initialize(*)
-      @eol = EOL.new list: self
+      @eol = EOL.new self
       @item_count = 0
 
       super
@@ -55,7 +55,7 @@ module Linked
     # this operation quite expensive.
 
     def initialize_dup(source)
-      @eol = EOL.new list: self
+      @eol = EOL.new self
       @item_count = 0
 
       source.each_item { |item| push item.dup  }

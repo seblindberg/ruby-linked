@@ -3,11 +3,11 @@ module Linked
     # End Of List
     #
     # This class implements a special list item that is placed at both the end
-    # and the beginning of a chain of regular items to form a list. The naming
+    # and the beginning of a chain of listable items to form a list. The naming
     # (end of list) comes from the fact that this object, by returning true for
     # calls to #nil?, signifies the end of a list of Items. In both directions
     # as a matter of fact, which is why the head and tail objects defined by
-    # Item is combined into one.
+    # Item are combined into one.
     #
     # In a nutshell, the structure looks something like this:
     #
@@ -20,9 +20,13 @@ module Linked
 
     class EOL
       include Listable
+      
+      # Calling #delete on the EOL is not supported and will break the
+      # connection between the list and its items.
+      
       private :delete
 
-      def initialize(list:)
+      def initialize(list)
         super()
         @list = list
         @prev = @next = self

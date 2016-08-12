@@ -7,7 +7,7 @@ describe Linked::List::EOL do
   let(:item) { Linked::Item.new }
   let(:item_a) { Linked::Item.new }
   let(:item_b) { Linked::Item.new }
-  let(:eol) { subject.new list: list }
+  let(:eol) { subject.new list }
   let(:eol_with_item) { list.expect :grow, nil, [1]; eol.append item; eol }
   let(:eol_whit_items) do
     item_a.append item_b
@@ -16,7 +16,7 @@ describe Linked::List::EOL do
     eol
   end
   
-  describe '#first?' do    
+  describe '#first?' do
     it 'returns true when there are no items' do
       assert eol.send :first?
     end
