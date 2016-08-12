@@ -392,13 +392,5 @@ module Linked
     rescue StopIteration
       arr.compact! || arr
     end
-
-    # This method is called whenever the module is included somewhere. In the
-    # special case when List is included in an Item the #item method must be
-    # changed to return self.
-
-    def self.included(klass)
-      klass.send(:define_method, :item) { self } if klass < Item
-    end
   end
 end
