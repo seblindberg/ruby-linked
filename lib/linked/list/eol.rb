@@ -21,10 +21,15 @@ module Linked
     class EOL
       include Listable
 
-      # Calling #delete on the EOL is not supported and will break the
+      # Calling #delete on the EOL is not supported and would break the
       # connection between the list and its items.
 
-      private :delete
+      undef delete
+
+      # Creates a new enf-of-list, as part of a list, with no items yet added to
+      # it.
+      #
+      # list - a List object.
 
       def initialize(list)
         super()
