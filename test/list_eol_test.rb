@@ -2,7 +2,7 @@ require 'test_helper'
 
 describe Linked::List::EOL do
   subject { Linked::List::EOL }
-  
+  break
   let(:list) { Minitest::Mock.new }
   let(:item) { Linked::Item.new }
   let(:item_a) { Linked::Item.new }

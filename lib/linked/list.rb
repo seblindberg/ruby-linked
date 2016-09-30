@@ -3,9 +3,8 @@
 module Linked
   # List
   #
-  # This class implements a linked list. Most importantly, the methods #head,
-  # #tail, #grow, #shrink and #create_item are implemented to comply with the
-  # requirements defined by Listable.
+  # This class provides a way extend the regular chain of listable items with
+  # the concept of an empty chain.
 
   class List
     include Enumerable
@@ -15,9 +14,7 @@ module Linked
     # @_item_count and @_eol never be accessed directly.
 
     def initialize
-      @_eol = EOL.new self
-      @_item_count = 0
-
+      reset
       super
     end
 
@@ -26,9 +23,7 @@ module Linked
     # this operation quite expensive.
 
     def initialize_dup(source)
-      @_eol = EOL.new self
-      @_item_count = 0
-
+      reset
       source.each_item { |item| push item.dup  }
 
       super
@@ -53,7 +48,7 @@ module Linked
 
     def item
       raise NoMethodError if empty?
-      head.next
+      @_chain
     end
 
     # Two lists are considered equal if the n:th item from each list are equal.
@@ -64,7 +59,7 @@ module Linked
 
     def ==(other)
       return false unless other.is_a? self.class
-      return false unless other.count == @_item_count
+      return false unless other.count == self.count
 
       other_items = other.each_item
       each_item.all? { |item| item == other_items.next }
@@ -72,64 +67,40 @@ module Linked
 
     alias eql? ==
 
-    # Access the first n item(s) in the list. If a block is given each item will
-    # be yielded to it. The first item, starting from the first in the list, for
-    # which the block returns true and the n - 1 items directly following it
-    # will be returned.
+    # Access the first n item(s) in the list.
     #
     # n - the number of items to return.
     #
     # Returns, for different values of n:
-    # n == 0) nil
-    # n == 1) an item if the list contains one, or nil
-    #  n > 1) an array of between 0 and n items, depending on how many are in
-    #         the list
+    # n = nil) an item if the list contains one, or nil.
+    #  n >= 0) an array of between 0 and n items, depending on how many are in.
+    #          the list.
 
-    def first(n = 1)
+    def first(n = nil)
+      return head unless n
       raise ArgumentError, 'n cannot be negative' if n < 0
+      
+      return [] if n == 0 || empty?
 
-      return first_item_after head, n, count unless block_given?
-
-      item = head
-      items_left = count
-
-      items_left.times do
-        break if yield next_item = item.next
-        item = next_item
-        items_left -= 1
-      end
-
-      first_item_after item, n, items_left
+      head.take n
     end
 
-    # Access the last n item(s) in the list. The items will retain thier order.
-    # If a block is given each item, starting with the last in the list, will be
-    # yielded to it. The first item for which the block returns true and the
-    # n - 1 items directly preceding it will be returned.
+    # Access the first n item(s) in the list.
     #
     # n - the number of items to return.
     #
     # Returns, for different values of n:
-    # n == 0) nil
-    # n == 1) an item if the list contains one, or nil
-    #  n > 1) an array of between 0 and n items, depending on how many are in
-    #         the list
+    # n = nil) an item if the list contains one, or nil.
+    #  n >= 0) an array of between 0 and n items, depending on how many are in.
+    #          the list. The order is preserved.
 
-    def last(n = 1)
+    def last(n = nil)
+      return tail unless n
       raise ArgumentError, 'n cannot be negative' if n < 0
-
-      return last_item_before tail, n, count unless block_given?
-
-      item = tail
-      items_left = count
-
-      items_left.times do
-        break if yield prev_item = item.prev
-        item = prev_item
-        items_left -= 1
-      end
-
-      last_item_before item, n, items_left
+      
+      return [] if n == 0 || empty?
+      
+      tail.take(-n)
     end
 
     # Overrides the Enumerable#count method when given no argument to provide a
@@ -142,7 +113,7 @@ module Linked
 
     def count(*args)
       if args.empty? && !block_given?
-        @_item_count
+        empty? ? 0 : @_chain.count
       else
         super
       end
@@ -151,7 +122,7 @@ module Linked
     # Returns true if the list does not contain any items.
 
     def empty?
-      @_item_count == 0
+      @_chain == nil
     end
 
     # Insert an item at the end of the list. If the given object is not an
@@ -165,7 +136,14 @@ module Linked
     # Returns self.
 
     def push(object)
-      tail.append object
+      item = coerce_item object
+      
+      if empty?
+        @_chain = item
+      else
+        @_chain.last.append item
+      end
+            
       self
     end
 
@@ -177,7 +155,13 @@ module Linked
 
     def pop
       return nil if empty?
-      last.delete
+      if last.first?
+        item = last
+        @_chain = nil
+        item
+      else
+        last.delete
+      end
     end
 
     # Insert an item at the beginning of the list. If the given object is not an
@@ -191,7 +175,14 @@ module Linked
     # Returns self.
 
     def unshift(object)
-      head.prepend object
+      item = coerce_item object
+      
+      if empty?
+        @_chain = item.first
+      else
+        @_chain = @_chain.prepend item
+      end
+            
       self
     end
 
@@ -201,7 +192,15 @@ module Linked
 
     def shift
       return nil if empty?
-      first.delete
+      if head.last?
+        item = @_chain
+        @_chain = nil
+        item
+      else
+        old_head = head
+        @_chain = head.next
+        old_head.delete
+      end
     end
 
     # Check if an item is in the list.
@@ -211,9 +210,8 @@ module Linked
     # Returns true if the given item is in the list, otherwise false.
 
     def include?(item)
-      item.in? self
-    rescue NoMethodError
-      false
+      return false if empty?
+      @_chain === item
     end
 
     # Iterates over each item in the list If a block is not given an enumerator
@@ -224,7 +222,10 @@ module Linked
       return if empty?
 
       item = head
-      loop { yield item = item.next }
+      loop do
+        yield item
+        item = item.next
+      end
     end
 
     alias each each_item
@@ -237,7 +238,10 @@ module Linked
       return if empty?
 
       item = tail
-      loop { yield item = item.prev }
+      loop do
+        yield item
+        item = item.prev
+      end
     end
 
     alias reverse_each reverse_each_item
@@ -246,7 +250,6 @@ module Linked
     # (eol).
 
     def freeze
-      @_eol.freeze
       each_item(&:freeze)
       super
     end
@@ -285,48 +288,29 @@ module Linked
     protected def create_item(*args)
       Item.new(*args)
     end
+    
+    private def coerce_item(object)
+      if object.respond_to? :item
+        object.item
+      else
+        create_item object
+      end
+    end
+    
+    protected def reset
+      @_chain = nil
+    end
 
-    # Returns an object that responds to #next= and #prepend.
+    # Returns the first item item in the list, or nil if empty.
 
     protected def head
-      @_eol
+      @_chain
     end
 
-    # Returns an object that responds to #prev= and #append.
+    # Returns an the last item in the list, or nil if empty.
 
-    alias tail head
-
-    # Internal method to grow the list with n elements. Never call this method
-    # without also inserting the n elements.
-    #
-    # n - the number of items that has been/will be added to the list.
-    #
-    # Returns updated the item count.
-
-    private def grow(n = 1)
-      @_item_count += n
-    end
-
-    # Internal method to shrink the list with n elements. Never call this method
-    # without also deleting the n elements.
-    #
-    # n - the number of items that has been/will be removed from the list.
-    #
-    # Returns updated the item count.
-
-    private def shrink(n = 1)
-      @_item_count -= n
-    end
-
-    # Private method to clear the list. Never call this method without also
-    # modifying the items in the list, as this operation leavs them in an
-    # inconsistant state. If the list items are kept, make sure to
-    # a) clear the `prev` pointer of the first item and
-    # b) clear the `next` pointer of the last item.
-
-    private def clear
-      @_eol.send :reset
-      @_item_count = 0
+    protected def tail
+      @_chain ? @_chain.last : nil
     end
 
     # Private helper method that returns the first n items, starting just

@@ -1,17 +1,7 @@
 module Linked
   # Listable
-  #                               List (optional)
-  #                           +----^-----+
-  #                   prev <- | Listable | -> next
-  #                           +----------+
   #
-  # This module implements doubly linked list items, designed to work both on
-  # their own in a chain, and as children of list.
-  #
-  # An object is considered a list if it responds to #grow, #shrink and
-  # #create_item. The former two facilitate counting of the items and will be
-  # called everytime an item is appended, prepended or deleted. #create_item is
-  # expected to return a new object that is compatible with the list.
+  # TODO
   #
   # Notation
   # --------
@@ -19,19 +9,18 @@ module Linked
   # Some methods operate on chains of items, and to describe the effects of an
   # operation the following syntax is used.
   #
-  #                    A   ( A <> B )   [ A <> B ]
-  #                   (i)     (ii)        (iii)
+  #                                A   ( A <> B )
+  #                               (i)     (ii)
   #
   # Single items are denoted with capital letters (i), while chains are written
-  # as multiple connected items (ii). The parenthesis are optional. To show that
-  # one or more nodes are wraped in a list, angle brackets are used (iii).
+  # as multiple connected items (ii). The parenthesis are optional.
 
   module Listable
     # Creates a new item. Always make a call to super whenever implementing this
     # method in a subclass.
 
     def initialize(*)
-      @_next = @_prev = @_list = nil
+      reset
       super
     end
 
@@ -41,7 +30,7 @@ module Linked
     # Returns a new Item.
 
     def initialize_copy(*)
-      @_next = @_prev = @_list = nil
+      reset
       super
     end
 
@@ -54,56 +43,65 @@ module Linked
     def item
       self
     end
-
-    # Access the list that the item is part of. If the item is not in a list a
-    # NoMethodError will be raised. This mirrors the behaviour of List#list and
-    # allows other methods that work on List objects to easily and
-    # interchangeably accept both lists and items as arguments.
-    #
-    # Returns the list that the item is part of.
-
-    def list
-      raise NoMethodError unless @_list
-      @_list
-    end
-
-    # Check it the item is part of a list.
-    #
-    # Returns true if the item is in a list.
-
-    def in_list?
-      @_list ? true : false
-    end
-
-    # Check if this is the first item in the list. It is crucial that tail#nil?
-    # returns true for the first item to be identified correctly.
-    #
+    
     # Returns true if no item come before this one.
-
+    
     def first?
-      @_prev.nil?
+      @_prev.last?
     end
 
-    # Check if this is the last item in the list. It is crucial that head#nil?
-    # returns true for the last item to be identified correctly.
-    #
     # Returns true if no item come after this one.
 
     def last?
       @_next.nil?
     end
-
-    # Check if the item is in the given list.
+    
+    # Returns the first item in the chain.
     #
-    # list - any object.
+    # This method operates on the chain and is not affected by the positioning
+    # in it.
+        
+    def first
+      first? ? self : first!
+    end
+    
+    alias chain first
+    
+    # Returns the last item in the chain.
     #
-    # Returns true if the item is part of the given list.
+    # This method operates on the chain and is not affected by the positioning
+    # in it.
+    
+    def last
+      last? ? self : first.prev!
+    end
+    
+    # Returns the number of items in the current chain.
+    #
+    # This method operates on the chain and is not affected by the positioning
+    # in it.
+    
+    def count
+      self.first.first!
+    end
+    
+    alias length count
 
-    def in?(list)
-      @_list.equal? list
+    # Chain equality.
+    #
+    # This method operates on the chain and is not affected by the positioning
+    # in it.
+    #
+    # other - any object.
+    #
+    # Returns true if the given object is included in the same chain.
+    
+    def ===(other)
+      return false unless other.respond_to? :first
+      first.equal? other.first
     end
 
-    # Access the next item in the list. If this is the last one a StopIteration
+    # Access the next item in the chain. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.
     #
     # Example
@@ -118,7 +116,7 @@ module Linked
       @_next
     end
 
-    # Access the previous item in the list. If this is the first one a
+    # Access the previous item in the chain. If this is the first one a
     # StopIteration will be raised, so that items may be iterated over safely in
     # a loop.
     #
@@ -135,126 +133,116 @@ module Linked
     end
 
     alias previous prev
-
-    # Inserts the given item between this one and the one after it (if any). If
-    # the given item is part of a chain, all items following it will be moved to
-    # this one, and added to the list if one is set.
-    #
-    # Example for the chain (A <> C)
-    #
-    #   A.append B # => (A <> B <> C)
-    #
-    # Alternativly the argument can be an arbitrary object, in which case a new
-    # item will be created around it.
-    #
-    # If this item is part of a list #grow will be called on it with the
-    # number of added items as an argument. Should it also be the last item
-    # #prev= will be called on the list tail.
-    #
-    # object - the item to append, or an arbitrary object to be wraped in a new
-    #          item. If in a list it will be asked to create the new item via
-    #          List#create_item.
-    #
-    # Returns the last item that was appended.
+    
+    # TODO
 
     def append(object)
-      if object.respond_to? :item
-        first_item = object.item
-        last_item = first_item.send :extract_beginning_with, @_list
+      # Assume the given object to be the head of its chain
+      # B. If it is not, chain B will be split before the
+      # object, and the sub chain in which the object now is
+      # the head will be appended.
+      sub_chain_b_head = coerce object
+      
+      # Grab the first item in this chain. We will need it
+      # later.
+      target_chain = self.first
+      
+      # Split chain B before the given object and grab the
+      # tail of that new sub chain.
+      sub_chain_b_tail = sub_chain_b_head.split_before_and_insert target_chain
+      
+      # If we are the last item in our chain we need to
+      # notify the head that there is a new tail.
+      # Otherwise the next item in the list need to be
+      # linked up correctly.
+      if last?
+        target_chain.prev = sub_chain_b_tail
       else
-        if @_list
-          first_item = last_item = @_list.send :create_item, object
-          first_item.list = @_list
-          @_list.send :grow
-        else
-          first_item = last_item = create_item object
-        end
+        sub_chain_b_tail.next = next!
+        next!.prev = sub_chain_b_tail
       end
-
-      first_item.prev = self
-      @_next.prev = last_item if @_next
-      @_next, last_item.next = first_item, @_next
-
-      last_item
+      
+      # Connect sub chain B to this item
+      sub_chain_b_head.prev = self
+      self.next = sub_chain_b_head
+      
+      sub_chain_b_tail
     end
 
-    # Inserts the given item between this one and the one before it (if any). If
-    # the given item is part of a chain, all items preceeding it will be moved
-    # to this one, and added to the list if one is set.
-    #
-    # Example for the chain (A <> C)
-    #
-    #   C.prepend B # => (A <> B <> C)
-    #
-    # Alternativly the argument can be an arbitrary object, in which case a new
-    # item will be created around it.
-    #
-    # If this item is part of a list #grow will be called on it with the
-    # number of added items as an argument. Should it also be the first item
-    # #next= will be called on the list head.
-    #
-    # object - the item to prepend. or an arbitrary object to be wraped in a
-    #          new item. If in a list it will be asked to create the new item
-    #          via List#create_item.
-    #
-    # Returns the last item that was prepended.
+    # TODO
 
     def prepend(object)
-      if object.respond_to? :item
-        last_item = object.item
-        first_item = last_item.send :extract_ending_with, @_list
-      else
-        if @_list
-          first_item = last_item = @_list.send :create_item, object
-          first_item.list = @_list
-          @_list.send :grow
-        else
-          first_item = last_item = create_item object
-        end
+      sub_chain_a_tail = coerce object
+      
+      if first?
+        sub_chain_a_tail.split_after_and_insert
+        sub_chain_a_tail.append self
+        
+        return first
       end
-
-      last_item.next = self
-      @_prev.next = first_item if @_prev
-      @_prev, first_item.prev = last_item, @_prev
-
-      first_item
+      
+      target_chain = self.first
+      
+      sub_chain_a_head = sub_chain_a_tail.split_after_and_insert target_chain
+      
+      prev!.next = sub_chain_a_head
+      sub_chain_a_head.prev = prev!
+      
+      sub_chain_a_tail.next = self
+      self.prev = sub_chain_a_tail
+      
+      sub_chain_a_head
     end
 
-    # Remove an item from the chain. If this item is part of a list and is
-    # either first, last or both in that list, #next= and #prev= will be called
-    # on the list head and tail respectivly.
+    # Remove an item from the chain. Note that calling #delete on the first item
+    # in a chain causes all subsequent items to be moved to a new chain.
     #
-    # If this item is part of a list #shrink will be called on it.
+    # Example using the chain A <> B <> C
+    #
+    #   A.delete # => A | B <> C
+    #   B.delete # => B | A <> C
+    #   C.delete # => C | A <> B
     #
     # Returns self.
 
     def delete
-      @_next.prev = @_prev if @_next
-      @_prev.next = @_next if @_prev
-      @_list.send :shrink if @_list
+      if first?
+        split_after_and_insert
+      else
+        shrink
+        
+        if last?
+          first.prev = @_prev
+        else
+          @_next.prev = @_prev
+        end
+        
+        @_prev.next = @_next
+      end
 
-      @_next = @_prev = @_list = nil
-      self
+      reset
     end
 
-    # Remove all items before this one in the chain. If the items are part of a
-    # list they will be removed from it.
+    # Remove all items before this one in the chain.
     #
-    # Returns the last item in the chain that was just deleted, or nil if this
+    # Returns the first item in the chain that was just deleted, or nil if this
     # is the first item.
 
     def delete_before
-      @_prev.send :extract_ending_with unless first?
+      prev!.split_after_and_insert unless first?
     end
 
-    # Remove all items after this one in the chain. If the items are part of a
-    # list they will be removed from it.
+    # Remove all items after this one in the chain.
     #
-    # Returns the last item in the chain that was just deleted, or nil if this
-    # is the first item.
+    # Returns the first item in the chain that was just deleted, or nil if this
+    # is the last item.
 
     def delete_after
-      @_next.send :extract_beginning_with unless last?
+      return nil if last?
+      
+      item = next!
+      item.split_before_and_insert
+      item
     end
 
     # Iterates over each item before this, in reverse order. If a block is not
@@ -292,6 +280,51 @@ module Linked
         item = item.next
       end
     end
+    
+    # Take n items and put them into a sorted array. If n is positive the array
+    # will include this item, as well the n - 1 items following it in the chain.
+    # If n is negative the items will be taken from before this item instead.
+    #
+    # If there are less than n - 1 items before/after this the resulting array
+    # will contain less than n items.
+    
+    def take(n)
+      # Optimize for the most simple cases
+      return [self] if n == 1 || n == -1
+      return [] if n == 0
+      
+      raise ArgumentError, 'n must be an integer' unless n.is_a? Integer
+      
+      n_abs = n < 0 ? -n : n
+
+      res = Array.new n_abs
+      
+      if n > 0
+        res[0] = self
+        enum = after
+        iter = 1.upto(n_abs - 1)
+      else
+        res[n_abs - 1] = self
+        enum = before
+        iter = (n_abs - 2).downto 0
+      end
+      
+      iter.each { |i| res[i] = enum.next }
+      res
+    rescue StopIteration
+      res.compact!
+      res
+    end
+    
+    
+    
+    # Due to the nature of listable objects the default #inspect method is
+    # problematic. This basic replacement includes only the class name and the
+    # object id.
+    
+    def inspect
+      format '%s:0x%0x', self.class.name, object_id
+    end
 
     # Protected factory method for creating items compatible with this listable
     # item. This method is called whenever an arbitrary object is appended or
@@ -301,13 +334,13 @@ module Linked
     #
     # args - any arguments will be passed on to .new.
     #
-    # Returns a new Listable object.
+    # Must return a new Listable object.
 
     protected def create_item(*args)
       self.class.new(*args)
     end
 
-    # Protected unsafe accessor of the next item in the list. It is preferable
+    # Protected unsafe accessor of the next item in the chain. It is preferable
     # to use #next, possibly in conjunction with #last?.
     #
     # Returns the item that come after this, or nil if this is the last one.
@@ -316,126 +349,206 @@ module Linked
       @_next
     end
 
-    # Calling #next= directly is not recommended since it may corrupt the chain.
+    # Never call this method directly since it may corrupt the chain.
+    #
+    # Sets the value of the `next` field.
 
     protected def next=(other)
       @_next = other
     end
 
-    # Protected, unsafe accessor of the previous item in the list. It is
+    # Protected, unsafe accessor of the previous item in the chain. It is
     # preferable to use #prev, possibly in conjunction with #first?.
     #
-    # Returns the item that come before this, or nil if this is the first one.
+    # Returns the item that come before this, or the last item in the chain if
+    # this is the first one.
 
     protected def prev!
       @_prev
     end
 
-    # Calling #prev= directly is not recommended since it may corrupt the chain.
+    # Never call this method directly since it may corrupt the chain.
+    #
+    # Sets the value of the `prev` field.
 
     protected def prev=(other)
       @_prev = other
     end
-
-    # Calling #list= directly is not recommended since it may corrupt the list.
-
-    protected def list=(list)
-      @_list = list
+    
+    # Protected, unsafe accessor of the first item in the chain. It is
+    # preferable to use #first.
+    #
+    # Returns the first item in the chain, or the chain item count if this is
+    # the first one.
+    
+    protected def first!
+      @_first
+    end
+    
+    # Never call this method directly since it may corrupt the chain.
+    #
+    # Sets the value of the `first` field.
+    
+    protected def first=(other)
+      @_first = other
+    end
+    
+    # Never call this method directly since it may corrupt the chain. Grow the
+    # chain with n items.
+    #
+    # n - the number of items to increase the chain count with.
+    #
+    # Returns the updated chain count.
+    
+    protected def grow(n = 1)
+      head = self.first
+      head.first = head.first! + n
+    end
+    
+    # Never call this method directly since it may corrupt the chain. Shrink the
+    # chain with n items.
+    #
+    # n - the number of items to decrease the chain count with.
+    #
+    # Returns the updated chain count.
+    
+    protected def shrink(n = 1)
+      head = first
+      head.first = head.first! - n
     end
 
-    # PRIVATE DANGEROUS METHOD. This method should never be called directly
-    # since it may leave the extracted item chain in an invalid state.
+    # Split the chain on this item and insert the latter part into the chain
+    # with head as its first item.
     #
-    # This method extracts the item, together with the chain following it, from
-    # the list they are in (if any) and optionally facilitates moving them to a
-    # new list.
+    # Calling C.split_before_and_insert(.) yields the two chains (ii) and (iii)
     #
-    # Given the two lists
-    #                         [ A <> B <> C ]   [ D ]
-    #                               (I)          (II)
+    #   A <> B <> C <> D    A <> B    C <> D
+    #         (i)            (ii)     (iii)
     #
-    # calling B.extract_beginning_with(II) will result in (B <> C) being removed
-    # from (I), and (II) to be grown by two. (B <> C) will now reference (II)
-    # but they will not yet be linked to any of the items in it. It is therefore
-    # necessary to insert them directly after calling this method, or (II) will
-    # be left in an invalid state.
-    #
-    # Returns the last item of the chain.
-
-    private def extract_beginning_with(new_list = nil)
-      old_list = @_list
-      # Count items and move them to the new list
-      last_item = self
-      count = 1 + loop.count do
-        last_item.list = new_list
-        last_item = last_item.next
+    
+    protected def split_before_and_insert(head_b = self)
+      # Get the current chain head. It will remain the head
+      # of sub chain a (ii). If this item is the first then
+      # chain a will be empty.
+      chain_a_head = first? ? nil : self.first
+      
+      # The head of sub chain b (iii) is self.
+      chain_b_head = self
+      
+      # Find the tail of sub chain b by iterating over each
+      # item, starting with this one. Set the the new head
+      # of these while counting them.
+      chain_b_tail = self
+      chain_b_count = 1
+      
+      loop do
+        chain_b_tail.first = head_b
+        chain_b_tail = chain_b_tail.next
+        chain_b_count += 1
       end
-
-      # Make sure the old list is in a valid state
-      if old_list
-        if first?
-          old_list.send :clear
-        else
-          old_list.send :shrink, count
-          # Fix the links within in the list
-          @_prev.next = last_item.next!
-          last_item.next!.prev = @_prev
-        end
+      
+      # If sub chain a is not empty it needs to be updated.
+      # Shrink its count by the number of items in sub
+      # chain b and complete it by connecting the head to
+      # the tail.
+      if chain_a_head
+        chain_a_head.shrink chain_b_count
+        
+        chain_a_tail = chain_b_head.prev
+        chain_a_head.prev = chain_a_tail
+        chain_a_tail.next = nil
+      end
+      
+      # Tell the new chain to grow. If sub chain b is to be
+      # the new head we can insert the count directly. We
+      # also complete the chain by connecting the head to
+      # the tail. The next field of the tail should already
+      # be nil.
+      if chain_b_head.equal? head_b
+        chain_b_head.first = chain_b_count
+        chain_b_head.prev = chain_b_tail
       else
-        # Disconnect the item directly after the chain
-        @_prev.next = nil unless first?
+        head_b.grow chain_b_count
       end
-
-      # Disconnect the chain from the list
-      @_prev = last_item.next = nil
-
-      # Preemptivly tell the new list to grow
-      new_list.send :grow, count if new_list
-
-      last_item
+      
+      # Chain a is now either empty (nil) or completed.
+      # Chain b however is only complete if the given head
+      # is equal to self (default). If it is not chain b
+      # will need a) the next field of the tail set to the
+      # item after, unless nil, and b) the prev field of
+      # head set to the item before.
+      
+      chain_b_tail
     end
-
-    # PRIVATE DANGEROUS METHOD. This method should never be called directly
-    # since it may leave the extracted item chain in an invalid state.
-    #
-    # This method extracts the item, together with the chain preceding it, from
-    # the list they are in (if any) and optionally facilitates moving them to a
-    # new list. See #extract_beginning_with for a description of the side
-    # effects from calling this method.
-    #
-    # Returns the first item in the chain.
-
-    private def extract_ending_with(new_list = nil)
-      old_list = @_list
-      # Count items and move them to the new list
-      first_item = self
-      count = 1 + loop.count do
-        first_item.list = new_list
-        first_item = first_item.prev
+    
+    # TODO
+    
+    protected def split_after_and_insert(head_a = self.first)
+      # If this is not the last item in the chain, sub chain
+      # b will contain items. Use #split_before_and_insert
+      # to cut the chain after this one. This will complete
+      # chain b and update the item count of chain a.
+      next!.split_before_and_insert unless last?
+      
+      chain_a_head = self.first
+      
+      # If the head of sub chain a is same as the target
+      # chain head
+      return chain_a_head if chain_a_head.equal? head_a
+      
+      chain_a_count = count
+      
+      # Set the head field of all items, starting with the
+      # tail (self) and moving backwards.
+      item = self
+      
+      loop do
+        item.first = head_a
+        item = item.prev
       end
-
-      # Make sure the old list is in a valid state
-      if old_list
-        if last?
-          old_list.send :clear
-        else
-          old_list.send :shrink, count
-          # Fix the links within in the list
-          @_next.prev = first_item.prev!
-          first_item.prev!.next = @_next
-        end
+      
+      # Tell the target chain to grow with the number of
+      # items in sub chain a.
+      head_a.grow chain_a_count
+      
+      # Sub chain b is now either empty or complete. Sub
+      # chain a however is only complete if the target
+      # head is the same as the head of chain a. Otherwise
+      # the prev field of head and the next field of tail
+      # both need to be set correctly.
+      
+      chain_a_head
+    end
+    
+    # Convert the given object to a listable item. If the object responds to
+    # #item the result of that call is returned. Otherwise a new item is created
+    # using #create_item.
+    #
+    # other - any object.
+    #
+    # Returns a listable item.
+    
+    private def coerce(other)
+      if other.respond_to? :item
+        other.item
       else
-        # Disconnect the item directly after the chain
-        @_next.prev = nil unless last?
+        create_item other
       end
-
-      # Disconnect the chain from the list
-      first_item.prev = @_next = nil
-
-      # Preemptivly tell the new list to grow
-      new_list.send :grow, count if new_list
-
-      first_item
+    end
+    
+    # Reset the fields of the item to their initial state. This leaves the item
+    # in a consistent state as a single item chain.
+    #
+    # Only call this method on items that are disconnected from their siblings.
+    # Otherwise the original chain (if any) will be left in an inconsistent
+    # state.
+    #
+    # Returns self.
+    
+    private def reset
+      @_first = 1
+      @_next = nil
+      @_prev = self
     end
   end
 end

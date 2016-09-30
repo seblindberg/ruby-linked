@@ -4,25 +4,8 @@ describe Linked::Item do
   subject { ::Linked::Item }
 
   let(:item) { subject.new }
-  let(:item_in_list) { subject.new.tap { |s| list.tail.append s } }
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
-  let(:item_c) { subject.new }
-
-  let(:sibling) { subject.new }
-
-  let(:head) { Minitest::Mock.new }
-  let(:tail) { Minitest::Mock.new }
-  let(:list) do
-    mock = Minitest::Mock.new
-    mock.expect :tail, tail
-    tail.expect(:append, nil) do |item|
-      item.send :next=, tail
-      item.send :prev=, head
-      true
-    end
-    mock
-  end
 
   describe '.new' do
     it 'accepts a value' do
@@ -75,24 +58,6 @@ describe Linked::Item do
   end
 
   describe '#dup' do
-    it 'disconnects the new item from its siblings' do
-      item_a.append(item_b).append(item_c)
-      duped_item = item_b.dup
-
-      assert duped_item.first?
-      assert duped_item.last?
-    end
-
-    it 'disconects the new item from its list' do
-      list.expect :grow, nil, [2]
-      tail.expect :prev=, nil, [item_c]
-
-      item_b.append item_c
-      item_in_list.append item_b
-
-      refute item_b.dup.in_list?
-    end
-
     it 'calls #dup on the value' do
       value = Minitest::Mock.new
       value.expect :dup, nil

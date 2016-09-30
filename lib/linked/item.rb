@@ -3,8 +3,10 @@
 module Linked
   # Item
   #
+  # This is the default implementation of a listable object
+  #
   # This class implements a listable value object that wraps an arbitrary value
-  # an can be stored in a list.
+  # an can be with other listable items.
 
   class Item
     include Listable
@@ -18,7 +20,6 @@ module Linked
     # of that list and appended to the end of it.
     #
     # value - an arbitrary object to store with the item.
-    # list - an object responding to #head and #tail.
     #
     # Returns a new Item.
 
@@ -28,7 +29,7 @@ module Linked
     end
 
     # Calling #dup on an item returns a copy that is no longer connected to the
-    # original item chain, or the list. The value will also be copied.
+    # original item chain. The value will also be copied.
     #
     # Returns a new Item.
 
@@ -64,7 +65,7 @@ module Linked
       value.hash
     end
 
-    # Freezes the value, as well as making the list item itself immutable.
+    # Freezes the value, as well as making the item itself immutable.
 
     def freeze
       value.freeze
