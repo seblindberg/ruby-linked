@@ -44,26 +44,31 @@ module Linked
       self
     end
     
-    # Returns true if no item come before this one.
+    # Returns true if no item come before this one. Note that the implementation
+    # of this method is protected and publicly accessible through its alias
+    # #first?.
     
     def chain_head?
       @_prev.chain_tail?
     end
     
     alias first? chain_head?
+    protected :chain_head?
 
-    # Returns true if no item come after this one.
+    # Returns true if no item come after this one. Note that the implementation
+    # of this method is protected and publicly accessible through its alias
+    # #last?.
 
     def chain_tail?
       @_next.nil?
     end
     
     alias last? chain_tail?
+    protected :chain_tail?
     
-    # Returns the first item in the chain.
-    #
-    # This method operates on the chain and is not affected by the positioning
-    # in it.
+    # Returns the first item in the chain. Note that the implementation of this
+    # method is protected and publicly accessible through its aliases
+    # #first_in_chain and #chain.
     
     def chain_head
       chain_head? ? self : chain_head!
@@ -72,34 +77,30 @@ module Linked
     alias first_in_chain chain_head
     alias chain chain_head
     
-    # Returns the last item in the chain.
-    #
-    # This method operates on the chain and is not affected by the positioning
-    # in it.
+    protected :chain_head
+    
+    # Returns the last item in the chain. Note that the implementation of this
+    # method is protected and publicly accessible through its aliases
+    # #last_in_chain.
     
     def chain_tail
       chain_tail? ? self : chain_head.prev!
     end
     
     alias last_in_chain chain_tail
+    protected :chain_tail
     
     # Returns the number of items in the current chain.
-    #
-    # This method operates on the chain and is not affected by the positioning
-    # in it.
     
     def chain_length
       self.chain_head.chain_head!
     end
     
-    # Chain equality.
+    # Check if this object is in a chain.
     #
-    # This method operates on the chain and is not affected by the positioning
-    # in it.
+    # other - any Listable object.
     #
-    # other - any object.
-    #
-    # Returns true if the given object is included in the same chain.
+    # Returns true if this object is in the same chain as the given one.
     
     def in_chain?(other)
       return false unless other.is_a? Listable
@@ -430,6 +431,13 @@ module Linked
     #   A <> B <> C <> D    A <> B    C <> D
     #         (i)            (ii)     (iii)
     #
+    # Chain (ii) is guaranteed to be complete. Chain (iii) will however be left
+    # in an inclomplete state unless head_b == self (default). The first item in
+    # (iii) must then be connected to the one preceeding it.
+    #
+    # head_b - the head of a new chain that (iii) will be added to.
+    #
+    # Returns the last element of (iii).
     
     protected def split_before_and_insert(head_b = self)
       # Get the current chain head. It will remain the head

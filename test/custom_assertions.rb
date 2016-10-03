@@ -19,10 +19,10 @@ module Minitest::Assertions
       assert_same a, b.prev, '#prev returns the wrong item'
       
       # Check that all items correctly point to head
-      assert_same head, b.chain_head, '#first does not return the first item'
+      assert_same head, b.first_in_chain, '#first does not return the first item'
     end
     
-    assert_same tail, head.chain_tail, '#last does not return the last item'
+    assert_same tail, head.last_in_chain, '#last does not return the last item'
   end
   
   def assert_list_contains(list, *items)

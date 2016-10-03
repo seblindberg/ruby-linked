@@ -50,33 +50,37 @@ describe Linked::Listable do
     end
   end
 
-  describe '#chain_head' do
+  describe '#first_in_chain' do
     it 'returns the item iteself if it is first' do
-      assert_same item_a, item_a.chain_head
+      assert_same item_a, item_a.first_in_chain
     end
       
     it 'returns the first item in the chain' do
-      assert_same item_a, item_b.chain_head
+      assert_same item_a, item_b.first_in_chain
     end
     
     it 'is aliased to #chain' do
-      assert_equal item.method(:chain_head), item.method(:chain)
+      assert_equal item.method(:first_in_chain), item.method(:chain)
     end
   end
 
-  describe '#last' do
+  describe '#last_in_chain' do
     it 'returns the item iteself if it is last' do
-      assert_same item_c, item_c.chain_tail
+      assert_same item_c, item_c.last_in_chain
     end
       
     it 'returns the last item in the chain' do
-      assert_same item_c, item_b.chain_tail
+      assert_same item_c, item_b.last_in_chain
     end
   end
 
   describe '#chain_length' do
     it 'returns 1 for single items' do
       assert_equal 1, item.chain_length
+    end
+    
+    it 'returns the number of items in the chain' do
+      assert_equal 3, item_a.chain_length
     end
   end
   

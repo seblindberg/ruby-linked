@@ -54,6 +54,23 @@ describe Linked::List do
       refute_equal list_a, list_b
     end
   end
+  
+  describe '#empty?' do
+    it 'returns true for empty lists' do
+      assert_predicate list, :empty?
+    end
+    
+    it 'returns false for non-empty lists' do
+      list << item
+      refute_predicate list, :empty?
+    end
+    
+    it 'returns false when items override #==' do
+      item.define_singleton_method(:==) { |_| true }
+      list << item
+      refute_predicate list, :empty?
+    end
+  end
 
   describe '#first' do
     describe 'with no argument' do

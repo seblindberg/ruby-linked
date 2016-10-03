@@ -15,7 +15,7 @@ module Linked
     # Initializes the list.
 
     def initialize
-      reset
+      reset_list
       super
     end
 
@@ -24,7 +24,7 @@ module Linked
     # this operation quite expensive.
 
     def initialize_dup(source)
-      reset
+      reset_list
       source.each_item { |item| push item.dup  }
 
       super
@@ -113,7 +113,7 @@ module Linked
     # Returns true if the list does not contain any items.
 
     def empty?
-      @_chain == nil
+      nil.eql? @_chain
     end
 
     # Insert an item at the end of the list. If the given object is not an
@@ -132,7 +132,7 @@ module Linked
       if empty?
         @_chain = item
       else
-        @_chain.chain_tail.append item
+        list_tail.append item
       end
             
       self
@@ -146,12 +146,13 @@ module Linked
 
     def pop
       return nil if empty?
-      if last.first?
+      
+      if list_tail.first?
         item = last
         @_chain = nil
         item
       else
-        last.delete
+        list_tail.delete
       end
     end
 
@@ -167,13 +168,8 @@ module Linked
 
     def unshift(object)
       item = coerce_item object
-      
-      if empty?
-        @_chain = item.chain_head
-      else
-        @_chain = @_chain.prepend item
-      end
-            
+      @_chain = empty? ? item.chain : @_chain.prepend(item)
+
       self
     end
 
@@ -183,6 +179,7 @@ module Linked
 
     def shift
       return nil if empty?
+      
       if list_head.last?
         item = @_chain
         @_chain = nil
@@ -202,6 +199,7 @@ module Linked
 
     def include?(item)
       return false if empty?
+      # TODO: This works fine, but looks wrong.
       @_chain.in_chain? item
     end
 
@@ -274,11 +272,17 @@ module Linked
     #
     # args - any arguments will be passed on to Item.new.
     #
-    # Returns a new Item.
+    # Returns a new Listable Item.
 
     protected def create_item(*args)
       Item.new(*args)
     end
+    
+    # Takes an arbitrary object and coerces it into an item compliant with the
+    # list. If the object is already an item it will be used as is. Otherwise
+    # #create_item will be called with the object as an argument.
+    #
+    # Returns a Listable item.
     
     private def coerce_item(object)
       if object.respond_to? :item
@@ -288,20 +292,23 @@ module Linked
       end
     end
     
-    protected def reset
+    # Private method for clearing the list and bringing it to a pristine
+    # state.
+    
+    private def reset_list
       @_chain = nil
     end
 
     # Returns the first item item in the list, or nil if empty.
 
-    protected def list_head
+    private def list_head
       @_chain
     end
 
     # Returns an the last item in the list, or nil if empty.
 
-    protected def list_tail
-      @_chain.chain_tail
+    private def list_tail
+      @_chain.last_in_chain
     end
   end
 end
