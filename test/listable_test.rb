@@ -15,24 +15,10 @@ describe Linked::Listable do
   subject { ::Item }
 
   let(:item) { subject.new }
-  
+  let(:sibling) { subject.new }
   let(:item_a) { subject.new }
   let(:item_b) { subject.new }
   let(:item_c) { subject.new }
-
-  let(:sibling) { subject.new }
-  
-  let(:lookup) do
-    Hash.new { |h, k| h.fetch(k.object_id, k) }.tap do |h|
-      h.merge!({
-        item.object_id => 'item',
-        sibling.object_id => 'sibling',
-        item_a.object_id => 'item_a',
-        item_b.object_id => 'item_b',
-        item_c.object_id => 'item_c',
-      })
-    end
-  end
   
   before do
     item_a.append(item_b).append(item_c)

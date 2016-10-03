@@ -68,12 +68,12 @@ module Linked
     #          the list.
 
     def first(n = nil)
-      return head unless n
+      return list_head unless n
       raise ArgumentError, 'n cannot be negative' if n < 0
       
       return [] if n == 0 || empty?
 
-      head.take n
+      list_head.take n
     end
 
     # Access the first n item(s) in the list.
@@ -183,13 +183,13 @@ module Linked
 
     def shift
       return nil if empty?
-      if head.last?
+      if list_head.last?
         item = @_chain
         @_chain = nil
         item
       else
-        old_head = head
-        @_chain = head.next
+        old_head = list_head
+        @_chain = list_head.next
         old_head.delete
       end
     end
@@ -212,7 +212,7 @@ module Linked
       return to_enum(__method__) { count } unless block_given?
       return if empty?
 
-      item = head
+      item = list_head
       loop do
         yield item
         item = item.next
@@ -294,7 +294,7 @@ module Linked
 
     # Returns the first item item in the list, or nil if empty.
 
-    protected def head
+    protected def list_head
       @_chain
     end
 
@@ -302,70 +302,6 @@ module Linked
 
     protected def list_tail
       @_chain.chain_tail
-    end
-
-    # Private helper method that returns the first n items, starting just
-    # after item, given that there are items_left items left. Knowing the exact
-    # number of items left is not cruicial but does impact speed. The number
-    # should not be lower than the actual ammount. The following must
-    # hold for the output to be valid:
-    # a) n > 0
-    # b) there are at least items_left items left
-    #
-    # item - the Item just before the item to start from.
-    # n - the number of items to return.
-    # items_left - the number of items left.
-    #
-    # Returns, for different values of n:
-    # n == 0) nil
-    # n == 1) an item if items_left > 0 or nil
-    #  n > 1) an array of items if items_left > 0 or an empty array
-
-    private def first_item_after(item, n, items_left = @_item_count)
-      # Optimize for these cases
-      return nil if n == 0
-      return n > 1 ? [] : nil if item.last?
-      return item.next if n == 1
-
-      n = items_left if n > items_left
-
-      arr = Array.new n
-      n.times { |i| arr[i] = item = item.next }
-      arr
-    rescue StopIteration
-      arr.compact! || arr
-    end
-
-    # Private helper method that returns the last n items, ending just before
-    # item,  given that there are items_left items left. Knowing the exact
-    # number of items left is not cruicial but does impact speed. The number
-    # should not be lower than the actual ammount. The following must hold for
-    # the output to be valid:
-    # a) n > 0
-    # b) there are at least items_left items left
-    #
-    # item - the Item just after the item to start from.
-    # n - the number of items to return.
-    # items_left - the number of items left.
-    #
-    # Returns, for different values of n:
-    # n == 0) nil
-    # n == 1) an item if items_left > 0 or nil
-    #  n > 1) an array of items if items_left > 0 or an empty array
-
-    private def last_item_before(item, n, items_left = @_item_count)
-      # Optimize for these cases
-      return nil if n == 0
-      return n > 1 ? [] : nil if item.first?
-      return item.prev if n == 1
-
-      n = items_left if n > items_left
-
-      arr = Array.new n
-      (n - 1).downto(0) { |i| arr[i] = item = item.prev }
-      arr
-    rescue StopIteration
-      arr.compact! || arr
     end
   end
 end
