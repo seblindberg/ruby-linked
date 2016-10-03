@@ -92,9 +92,6 @@ module Linked
       self.chain_head.chain_head!
     end
     
-    #alias count chain_length
-    #alias length chain_length
-
     # Chain equality.
     #
     # This method operates on the chain and is not affected by the positioning

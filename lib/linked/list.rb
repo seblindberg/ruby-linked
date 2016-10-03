@@ -5,6 +5,9 @@ module Linked
   #
   # This class provides a way extend the regular chain of listable items with
   # the concept of an empty chain.
+  #
+  # Lists are ment to behave more like arrays, and respond to many of the same
+  # methods.
 
   class List
     include Enumerable
@@ -25,20 +28,6 @@ module Linked
       source.each_item { |item| push item.dup  }
 
       super
-    end
-
-    # Identity method that simply return the list. This method mirrors Item#list
-    # and allows other methods that work on List objects to easily and
-    # interchangebly accept both lists and items as arguments.
-    #
-    # Returns the list itself.
-
-    def list
-      self
-    end
-    
-    def chain
-      @_chain
     end
 
     # Access the first item in the list. If the list is empty a NoMethodError
@@ -97,12 +86,12 @@ module Linked
     #          the list. The order is preserved.
 
     def last(n = nil)
-      return tail unless n
+      return empty? ? nil : list_tail unless n
       raise ArgumentError, 'n cannot be negative' if n < 0
       
       return [] if n == 0 || empty?
       
-      tail.take(-n)
+      list_tail.take(-n)
     end
 
     # Overrides the Enumerable#count method when given no argument to provide a
@@ -239,7 +228,7 @@ module Linked
       return to_enum(__method__) { count } unless block_given?
       return if empty?
 
-      item = tail
+      item = list_tail
       loop do
         yield item
         item = item.prev
@@ -311,8 +300,8 @@ module Linked
 
     # Returns an the last item in the list, or nil if empty.
 
-    protected def tail
-      @_chain ? @_chain.chain_tail : nil
+    protected def list_tail
+      @_chain.chain_tail
     end
 
     # Private helper method that returns the first n items, starting just

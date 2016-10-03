@@ -23,12 +23,6 @@ describe Linked::List do
       assert_raises(NoMethodError) { list.item }
     end
   end
-
-  describe '#list' do
-   it 'returns the list itself' do
-      assert_same list, list.list
-    end
-  end
   
   describe '#==' do
     let(:list_a) do
