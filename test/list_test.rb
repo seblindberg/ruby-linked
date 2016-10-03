@@ -19,6 +19,7 @@ describe Linked::List do
       assert_same item, list.item
     end
   
+    # TODO: Is this the correct behaviour?
     it 'raises an exception when list is empty' do
       assert_raises(NoMethodError) { list.item }
     end
@@ -165,6 +166,10 @@ describe Linked::List do
   end
 
   describe '#count' do
+    it 'returns 0 for empty lists' do
+      assert_equal 0, list.count
+    end
+    
     it 'returns the number of items' do
       list.push item_a
       list.push item_b
