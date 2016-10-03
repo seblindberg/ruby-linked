@@ -39,8 +39,8 @@ describe 'Nesting Lists' do
   it 'accepts arbitrary objects as siblings' do
     item.prepend :a
     item.append :b
-    
-    assert_same :a, item.prev.value
+
+    assert_equal :a, item.prev.value
     assert_kind_of subject, item.next
   end
   
@@ -61,16 +61,16 @@ describe 'Nesting Lists' do
   end
   
   it 'duplicates the children' do
-    item.prepend sibling_a
-    item.append sibling_b
-    item.unshift child_a
-    item.push child_b
+    item.prepend sibling_a # sA <> I
+    item.append sibling_b  # sA <> I <> sB
+    item.unshift child_a   #   cA -+
+    item.push child_b      #   cA -+- cB
     
     duped_item = item.dup
     
     assert duped_item.first? && duped_item.last?
     assert_same item, sibling_a.next
-    
+
     assert_equal 2, duped_item.count
     refute_same child_a, duped_item.first
     assert_equal :a, duped_item.first.value
@@ -83,7 +83,7 @@ describe 'Nesting Lists' do
     
     duped_child_a = child_a.dup
     
-    refute duped_child_a.in_list?
+    refute item.include? duped_child_a
     
     assert_equal 1, duped_child_a.count
     assert_kind_of subject, duped_child_a.first

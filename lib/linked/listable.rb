@@ -69,7 +69,7 @@ module Linked
       chain_head? ? self : chain_head!
     end
         
-    alias first chain_head
+    alias first_in_chain chain_head
     alias chain chain_head
     
     # Returns the last item in the chain.
@@ -81,7 +81,7 @@ module Linked
       chain_tail? ? self : chain_head.prev!
     end
     
-    alias last chain_tail
+    alias last_in_chain chain_tail
     
     # Returns the number of items in the current chain.
     #
@@ -92,8 +92,8 @@ module Linked
       self.chain_head.chain_head!
     end
     
-    alias count chain_length
-    alias length chain_length
+    #alias count chain_length
+    #alias length chain_length
 
     # Chain equality.
     #
@@ -409,7 +409,7 @@ module Linked
     # Returns the updated chain count.
     
     protected def grow(n = 1)
-      head = self.chain_head
+      head = chain_head
       head.chain_head = head.chain_head! + n
     end
     
@@ -421,7 +421,7 @@ module Linked
     # Returns the updated chain count.
     
     protected def shrink(n = 1)
-      head = first
+      head = chain_head
       head.chain_head = head.chain_head! - n
     end
 
@@ -438,7 +438,7 @@ module Linked
       # Get the current chain head. It will remain the head
       # of sub chain a (ii). If this item is the first then
       # chain a will be empty.
-      chain_a_head = chain_head? ? nil : self.chain_head
+      chain_a_head = chain_head? ? nil : chain_head
       
       # The head of sub chain b (iii) is self.
       chain_b_head = self
@@ -447,12 +447,12 @@ module Linked
       # item, starting with this one. Set the the new head
       # of these while counting them.
       chain_b_tail = self
-      chain_b_count = 1
+      chain_b_length = 1
       
       loop do
         chain_b_tail.chain_head = head_b
         chain_b_tail = chain_b_tail.next
-        chain_b_count += 1
+        chain_b_length += 1
       end
       
       # If sub chain a is not empty it needs to be updated.
@@ -460,7 +460,7 @@ module Linked
       # chain b and complete it by connecting the head to
       # the tail.
       if chain_a_head
-        chain_a_head.shrink chain_b_count
+        chain_a_head.shrink chain_b_length
         
         chain_a_tail = chain_b_head.prev
         chain_a_head.prev = chain_a_tail
@@ -473,10 +473,10 @@ module Linked
       # the tail. The next field of the tail should already
       # be nil.
       if chain_b_head.equal? head_b
-        chain_b_head.chain_head = chain_b_count
+        chain_b_head.chain_head = chain_b_length
         chain_b_head.prev = chain_b_tail
       else
-        head_b.grow chain_b_count
+        head_b.grow chain_b_length
       end
       
       # Chain a is now either empty (nil) or completed.
@@ -504,7 +504,7 @@ module Linked
       # chain head
       return chain_a_head if chain_a_head.equal? head_a
       
-      chain_a_count = count
+      chain_a_length = chain_length
       
       # Set the head field of all items, starting with the
       # tail (self) and moving backwards.
@@ -517,7 +517,7 @@ module Linked
       
       # Tell the target chain to grow with the number of
       # items in sub chain a.
-      head_a.grow chain_a_count
+      head_a.grow chain_a_length
       
       # Sub chain b is now either empty or complete. Sub
       # chain a however is only complete if the target

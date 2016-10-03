@@ -12,17 +12,17 @@ module Minitest::Assertions
         
     assert head.first?, 'The first item is not first in the chain'
     assert tail.last?, 'The last item is not last in the chain'
-    assert_equal items.count, head.count, 'The chain count is not correct'
+    assert_equal items.count, head.chain_length, 'The chain count is not correct'
         
     items.each_cons(2) do |a, b|
       assert_same b, a.next, '#next returns the wrong item'
       assert_same a, b.prev, '#prev returns the wrong item'
       
       # Check that all items correctly point to head
-      assert_same head, b.first, '#first does not return the first item'
+      assert_same head, b.chain_head, '#first does not return the first item'
     end
     
-    assert_same tail, head.last, '#last does not return the last item'
+    assert_same tail, head.chain_tail, '#last does not return the last item'
   end
   
   def assert_list_contains(list, *items)

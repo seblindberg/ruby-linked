@@ -9,9 +9,7 @@ module Linked
   class List
     include Enumerable
 
-    # Initializes the list. It is important that this method be called during
-    # the initialization of the including class, and that the instance variables
-    # @_item_count and @_eol never be accessed directly.
+    # Initializes the list.
 
     def initialize
       reset
@@ -117,7 +115,7 @@ module Linked
 
     def count(*args)
       if args.empty? && !block_given?
-        empty? ? 0 : @_chain.count
+        empty? ? 0 : @_chain.chain_length
       else
         super
       end
@@ -145,7 +143,7 @@ module Linked
       if empty?
         @_chain = item
       else
-        @_chain.last.append item
+        @_chain.chain_tail.append item
       end
             
       self
@@ -182,7 +180,7 @@ module Linked
       item = coerce_item object
       
       if empty?
-        @_chain = item.first
+        @_chain = item.chain_head
       else
         @_chain = @_chain.prepend item
       end
@@ -314,7 +312,7 @@ module Linked
     # Returns an the last item in the list, or nil if empty.
 
     protected def tail
-      @_chain ? @_chain.last : nil
+      @_chain ? @_chain.chain_tail : nil
     end
 
     # Private helper method that returns the first n items, starting just

@@ -1,7 +1,6 @@
 require 'test_helper'
 
 describe 'README.md' do
-  break
   describe 'usage' do
     it 'works as promised' do
       # Create a list
