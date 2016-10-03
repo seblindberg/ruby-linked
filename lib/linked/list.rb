@@ -38,6 +38,10 @@ module Linked
     def list
       self
     end
+    
+    def chain
+      @_chain
+    end
 
     # Access the first item in the list. If the list is empty a NoMethodError
     # will be raised. This mirrors the behaviour of Item#item and allows other
@@ -211,7 +215,7 @@ module Linked
 
     def include?(item)
       return false if empty?
-      @_chain === item
+      @_chain.in_chain? item
     end
 
     # Iterates over each item in the list If a block is not given an enumerator

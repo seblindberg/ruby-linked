@@ -20,7 +20,7 @@ module Linked
     # method in a subclass.
 
     def initialize(*)
-      reset
+      reset_item
       super
     end
 
@@ -30,7 +30,7 @@ module Linked
     # Returns a new Item.
 
     def initialize_copy(*)
-      reset
+      reset_item
       super
     end
 
@@ -46,46 +46,54 @@ module Linked
     
     # Returns true if no item come before this one.
     
-    def first?
-      @_prev.last?
+    def chain_head?
+      @_prev.chain_tail?
     end
+    
+    alias first? chain_head?
 
     # Returns true if no item come after this one.
 
-    def last?
+    def chain_tail?
       @_next.nil?
     end
+    
+    alias last? chain_tail?
     
     # Returns the first item in the chain.
     #
     # This method operates on the chain and is not affected by the positioning
     # in it.
-        
-    def first
-      first? ? self : first!
-    end
     
-    alias chain first
+    def chain_head
+      chain_head? ? self : chain_head!
+    end
+        
+    alias first chain_head
+    alias chain chain_head
     
     # Returns the last item in the chain.
     #
     # This method operates on the chain and is not affected by the positioning
     # in it.
     
-    def last
-      last? ? self : first.prev!
+    def chain_tail
+      chain_tail? ? self : chain_head.prev!
     end
+    
+    alias last chain_tail
     
     # Returns the number of items in the current chain.
     #
     # This method operates on the chain and is not affected by the positioning
     # in it.
     
-    def count
-      self.first.first!
+    def chain_length
+      self.chain_head.chain_head!
     end
     
-    alias length count
+    alias count chain_length
+    alias length chain_length
 
     # Chain equality.
     #
@@ -96,10 +104,12 @@ module Linked
     #
     # Returns true if the given object is included in the same chain.
     
-    def ===(other)
-      return false unless other.respond_to? :first
-      first.equal? other.first
+    def in_chain?(other)
+      return false unless other.is_a? Listable
+      chain_head.equal? other.chain_head
     end
+    
+    alias === in_chain?
 
     # Access the next item in the chain. If this is the last one a StopIteration
     # will be raised, so that items may be iterated over safely in a loop.
@@ -112,7 +122,7 @@ module Linked
     # Returns the item that come after this.
 
     def next
-      raise StopIteration if last?
+      raise StopIteration if chain_tail?
       @_next
     end
 
@@ -128,7 +138,7 @@ module Linked
     # Returns the item that come before this.
 
     def prev
-      raise StopIteration if first?
+      raise StopIteration if chain_head?
       @_prev
     end
 
@@ -145,7 +155,7 @@ module Linked
       
       # Grab the first item in this chain. We will need it
       # later.
-      target_chain = self.first
+      target_chain = self.chain_head
       
       # Split chain B before the given object and grab the
       # tail of that new sub chain.
@@ -155,7 +165,7 @@ module Linked
       # notify the head that there is a new tail.
       # Otherwise the next item in the list need to be
       # linked up correctly.
-      if last?
+      if chain_tail?
         target_chain.prev = sub_chain_b_tail
       else
         sub_chain_b_tail.next = next!
@@ -174,14 +184,14 @@ module Linked
     def prepend(object)
       sub_chain_a_tail = coerce object
       
-      if first?
+      if chain_head?
         sub_chain_a_tail.split_after_and_insert
         sub_chain_a_tail.append self
         
-        return first
+        return chain_head
       end
       
-      target_chain = self.first
+      target_chain = self.chain_head
       
       sub_chain_a_head = sub_chain_a_tail.split_after_and_insert target_chain
       
@@ -206,13 +216,13 @@ module Linked
     # Returns self.
 
     def delete
-      if first?
+      if chain_head?
         split_after_and_insert
       else
         shrink
         
-        if last?
-          first.prev = @_prev
+        if chain_tail?
+          chain_head.prev = @_prev
         else
           @_next.prev = @_prev
         end
@@ -220,7 +230,7 @@ module Linked
         @_prev.next = @_next
       end
 
-      reset
+      reset_item
     end
 
     # Remove all items before this one in the chain.
@@ -229,7 +239,7 @@ module Linked
     # is the first item.
 
     def delete_before
-      prev!.split_after_and_insert unless first?
+      prev!.split_after_and_insert unless chain_head?
     end
 
     # Remove all items after this one in the chain.
@@ -238,7 +248,7 @@ module Linked
     # is the last item.
 
     def delete_after
-      return nil if last?
+      return nil if chain_tail?
       
       item = next!
       item.split_before_and_insert
@@ -253,7 +263,7 @@ module Linked
 
     def before
       return to_enum(__callee__) unless block_given?
-      return if first?
+      return if chain_head?
 
       item = self.prev
 
@@ -271,7 +281,7 @@ module Linked
 
     def after
       return to_enum(__callee__) unless block_given?
-      return if last?
+      return if chain_tail?
 
       item = self.next
 
@@ -315,8 +325,6 @@ module Linked
       res.compact!
       res
     end
-    
-    
     
     # Due to the nature of listable objects the default #inspect method is
     # problematic. This basic replacement includes only the class name and the
@@ -381,16 +389,16 @@ module Linked
     # Returns the first item in the chain, or the chain item count if this is
     # the first one.
     
-    protected def first!
-      @_first
+    protected def chain_head!
+      @_chain_head
     end
     
     # Never call this method directly since it may corrupt the chain.
     #
     # Sets the value of the `first` field.
     
-    protected def first=(other)
-      @_first = other
+    protected def chain_head=(other)
+      @_chain_head = other
     end
     
     # Never call this method directly since it may corrupt the chain. Grow the
@@ -401,8 +409,8 @@ module Linked
     # Returns the updated chain count.
     
     protected def grow(n = 1)
-      head = self.first
-      head.first = head.first! + n
+      head = self.chain_head
+      head.chain_head = head.chain_head! + n
     end
     
     # Never call this method directly since it may corrupt the chain. Shrink the
@@ -414,7 +422,7 @@ module Linked
     
     protected def shrink(n = 1)
       head = first
-      head.first = head.first! - n
+      head.chain_head = head.chain_head! - n
     end
 
     # Split the chain on this item and insert the latter part into the chain
@@ -430,7 +438,7 @@ module Linked
       # Get the current chain head. It will remain the head
       # of sub chain a (ii). If this item is the first then
       # chain a will be empty.
-      chain_a_head = first? ? nil : self.first
+      chain_a_head = chain_head? ? nil : self.chain_head
       
       # The head of sub chain b (iii) is self.
       chain_b_head = self
@@ -442,7 +450,7 @@ module Linked
       chain_b_count = 1
       
       loop do
-        chain_b_tail.first = head_b
+        chain_b_tail.chain_head = head_b
         chain_b_tail = chain_b_tail.next
         chain_b_count += 1
       end
@@ -465,7 +473,7 @@ module Linked
       # the tail. The next field of the tail should already
       # be nil.
       if chain_b_head.equal? head_b
-        chain_b_head.first = chain_b_count
+        chain_b_head.chain_head = chain_b_count
         chain_b_head.prev = chain_b_tail
       else
         head_b.grow chain_b_count
@@ -483,14 +491,14 @@ module Linked
     
     # TODO
     
-    protected def split_after_and_insert(head_a = self.first)
+    protected def split_after_and_insert(head_a = chain_head)
       # If this is not the last item in the chain, sub chain
       # b will contain items. Use #split_before_and_insert
       # to cut the chain after this one. This will complete
       # chain b and update the item count of chain a.
-      next!.split_before_and_insert unless last?
+      next!.split_before_and_insert unless chain_tail?
       
-      chain_a_head = self.first
+      chain_a_head = chain_head
       
       # If the head of sub chain a is same as the target
       # chain head
@@ -503,7 +511,7 @@ module Linked
       item = self
       
       loop do
-        item.first = head_a
+        item.chain_head = head_a
         item = item.prev
       end
       
@@ -545,8 +553,8 @@ module Linked
     #
     # Returns self.
     
-    private def reset
-      @_first = 1
+    private def reset_item
+      @_chain_head = 1
       @_next = nil
       @_prev = self
     end

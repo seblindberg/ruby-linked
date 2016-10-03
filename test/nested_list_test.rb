@@ -15,7 +15,7 @@ end
 
 describe 'Nesting Lists' do
   subject { ::NestedListItem }
-  break
+  
   let(:item) { subject.new }
   let(:sibling_a) { subject.new }
   let(:sibling_b) { subject.new }
