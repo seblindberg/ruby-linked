@@ -11,16 +11,20 @@ class NestedListItem < Linked::List
     super()
     @value = value
   end
+  
+  def inspect
+    inspect_list { value.to_s }
+  end
 end
 
 describe 'Nesting Lists' do
   subject { ::NestedListItem }
   
-  let(:item) { subject.new }
-  let(:sibling_a) { subject.new }
-  let(:sibling_b) { subject.new }
-  let(:child_a) { subject.new :a }
-  let(:child_b) { subject.new :b }
+  let(:item) { subject.new :item }
+  let(:sibling_a) { subject.new :sa }
+  let(:sibling_b) { subject.new :sb }
+  let(:child_a) { subject.new :ca }
+  let(:child_b) { subject.new :cb }
   
   describe '#item' do
     it 'returns itself' do
@@ -73,7 +77,7 @@ describe 'Nesting Lists' do
 
     assert_equal 2, duped_item.count
     refute_same child_a, duped_item.first
-    assert_equal :a, duped_item.first.value
+    assert_equal :ca, duped_item.first.value
   end
   
   it 'duplicates a child' do
@@ -88,5 +92,16 @@ describe 'Nesting Lists' do
     assert_equal 1, duped_child_a.count
     assert_kind_of subject, duped_child_a.first
     refute_same child_b, duped_child_a.first
+  end
+  
+  it 'inspects the entire subtree' do
+    item << sibling_a << sibling_b
+    sibling_a << child_a
+    sibling_b << child_b
+    res = item.inspect
+
+    assert_match(/\Aitem/, res)
+    assert_match(/├─╴sa/, res)
+    assert_match(/   └─╴cb\z/, res)
   end
 end

@@ -8,6 +8,8 @@ describe Linked::List do
 
   let(:item_a) { Linked::Item.new :a }
   let(:item_b) { Linked::Item.new :b }
+  
+  let(:res) { [] }
 
   it 'includes Enumerable' do
     assert subject.ancestors.include? Enumerable
@@ -235,9 +237,7 @@ describe Linked::List do
   end
 
   describe '#pop' do
-    before do
-      list << item_a << item_b
-    end
+    before { list << item_a << item_b }
     
     it 'removes the last Item' do
       list.pop
@@ -255,7 +255,7 @@ describe Linked::List do
       
       assert_equal 0, list.count
     end
-
+    
     it 'returns nil for empty lists' do
       assert_nil subject.new.pop
     end
@@ -346,7 +346,6 @@ describe Linked::List do
     end
 
     it 'iterates over each item' do
-      res = []
       list.each_item { |item| res << item }
 
       assert_same item_a, res.first
@@ -368,7 +367,6 @@ describe Linked::List do
     end
 
     it 'iterates over each item in reverse' do
-      res = []
       list.reverse_each_item { |item| res << item }
 
       assert_same item_b, res.first
@@ -427,16 +425,16 @@ describe Linked::List do
 
     it 'contains the output of the items' do
       res = list.inspect
-
-      refute_nil res[item_a.inspect]
-      refute_nil res[item_b.inspect]
+      
+      assert_match(/#{item_a.inspect}/, res)
+      assert_match(/#{item_b.inspect}/, res)
     end
 
-    it 'accepts a block' do
-      res = list.inspect { |item| item.value }
-
-      refute_nil res["├─╴a\n"]
-      refute_nil res['└─╴b']
-    end
+    # it 'accepts a block' do
+    #   res = list.inspect { |item| item.value }
+    #
+    #   refute_nil res["├─╴a\n"]
+    #   refute_nil res['└─╴b']
+    # end
   end
 end

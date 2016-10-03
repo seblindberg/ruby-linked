@@ -101,12 +101,5 @@ describe Linked::Item do
       item.value = 'value'
       refute_nil item.inspect['value="value"']
     end
-
-    it 'accepts a block' do
-      item.value = 'inspected'
-      res = item.inspect { |itm| itm.value }
-
-      assert_equal item.value, res
-    end
   end
 end
