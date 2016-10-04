@@ -9,11 +9,12 @@ module Minitest::Assertions
   def assert_chain(*items)
     head = items[0]
     tail = items[-1]
-        
+    
     assert head.first?, 'The first item is not first in the chain'
     assert tail.last?, 'The last item is not last in the chain'
     assert_equal items.count, head.chain_length, 'The chain count is not correct'
-        
+    
+    # Test each of the three fields
     items.each_cons(2) do |a, b|
       assert_same b, a.next, '#next returns the wrong item'
       assert_same a, b.prev, '#prev returns the wrong item'

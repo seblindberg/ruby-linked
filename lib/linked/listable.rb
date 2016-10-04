@@ -1,23 +1,46 @@
 module Linked
   # Listable
   #
-  # TODO
+  # The listable item is the foundational element of the linked list. Each link
+  # in the chain knows what comes both before and after, as well as which
+  # elements are in the beginning and end of the chain. This information can be
+  # used to iterate over the chained elements.
+  #
+  # Internally each listable item stores three pointers: one to the head of the
+  # chain and two for the previous and next items respectivly. The head of the
+  # chain uses the head pointer to store how many elements are currently in the
+  # chain, for fast access. Furthermore it uses its pointer to the previous
+  # element to keep track of the last element of the chain.
+  #
+  # In pracitce this means that some operations are fast, or computationally
+  # cheap, while other are more expensive. The follwing actions are fast:
+  #
+  # 1) Accessing the previous and next item.
+  # 2) Accessing the first and last element of the chain.
+  # 3) Calculating the length of the chain.
+  # 4) Appending items.
+  # 5) Deleting any item but the first one.
+  #
+  # On the flip side, the following are the expensive operations:
+  #
+  # 1) Prepending items.
+  # 2) Deleting the first item.
+  # 3) Splitting the chain.
   #
   # Notation
   # --------
-  #
   # Some methods operate on chains of items, and to describe the effects of an
   # operation the following syntax is used.
   #
-  #                                A   ( A <> B )
+  #                                A     A <> B
   #                               (i)     (ii)
   #
   # Single items are denoted with capital letters (i), while chains are written
-  # as multiple connected items (ii). The parenthesis are optional.
+  # as multiple connected items (ii).
 
   module Listable
-    # Creates a new item. Always make a call to super whenever implementing this
-    # method in a subclass.
+    # Creates a new item. Always make a call to super whenever overriding this
+    # method in an including class.
 
     def initialize(*)
       reset_item
@@ -49,6 +72,8 @@ module Linked
     # #first?.
     
     def chain_head?
+      #p @_chain_head.is_a? Numeric
+      #@_chain_head.is_a? Numeric
       @_prev.chain_tail?
     end
     
@@ -512,9 +537,9 @@ module Linked
       chain_a_length = chain_length
       
       # Set the head field of all items, starting with the
-      # tail (self) and moving backwards.
+      # tail (self), moving backwards.
       item = self
-      
+
       loop do
         item.chain_head = head_a
         item = item.prev
