@@ -539,7 +539,8 @@ module Linked
       # Set the head field of all items, starting with the
       # tail (self), moving backwards.
       item = self
-
+      
+      # Loop until we hit the first item.
       loop do
         item.chain_head = head_a
         item = item.prev
