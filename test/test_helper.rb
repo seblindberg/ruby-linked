@@ -5,6 +5,11 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'simplecov'
 require 'coveralls'
 
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new [
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+
 SimpleCov.start 'test_frameworks'
 
 require 'linked'
