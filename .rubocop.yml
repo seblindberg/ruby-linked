@@ -2,7 +2,7 @@ AllCops:
   Exclude:
     - 'vendor/**/*'
     - 'tmp/**/*'
-  TargetRubyVersion: 2.5
+  TargetRubyVersion: 2.3
 
 Layout/EndOfLine:
   EnforcedStyle: lf
