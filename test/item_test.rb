@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 describe Linked::Item do
@@ -13,46 +15,46 @@ describe Linked::Item do
       assert_equal :value, item.value
     end
   end
-  
+
   describe '#==' do
     it 'returns true if the item value equals the others' do
       item.value = :value
-      
+
       object = Minitest::Mock.new
       object.expect :value, :value
-      
+
       assert_operator item, :==, object
       object.verify
     end
-    
+
     it 'returns false if the item values does not equal the others' do
       item_a.value = :a
       item_b.value = :b
       refute_operator item_a, :==, item_b
     end
-    
+
     it 'returns false if the other object does not respond to #value' do
       object = Minitest::Mock.new
       refute_operator item, :==, object
     end
-    
+
     it 'is aliased to #eql?' do
       assert_equal item.method(:==), item.method(:eql?)
     end
   end
-  
+
   describe '#hash' do
     it 'returns the same hash for items with equal values' do
       item_a.value = :value
       item_b.value = :value
-      
+
       assert_equal item_a.hash, item_b.hash
     end
-    
+
     it 'returns different hashes for items with different values' do
       item_a.value = :a
       item_b.value = :b
-      
+
       refute_equal item_a.hash, item_b.hash
     end
   end

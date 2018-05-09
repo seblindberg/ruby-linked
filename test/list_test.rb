@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 describe Linked::List do
@@ -8,25 +10,25 @@ describe Linked::List do
 
   let(:item_a) { Linked::Item.new :a }
   let(:item_b) { Linked::Item.new :b }
-  
+
   let(:res) { [] }
 
   it 'includes Enumerable' do
     assert subject.ancestors.include? Enumerable
   end
-  
+
   describe '#item' do
     it 'returns the first item in the list' do
       list << item
       assert_same item, list.item
     end
-  
+
     # TODO: Is this the correct behaviour?
     it 'raises an exception when list is empty' do
       assert_raises(NoMethodError) { list.item }
     end
   end
-  
+
   describe '#==' do
     let(:list_a) do
       item_a.value = :value
@@ -34,40 +36,40 @@ describe Linked::List do
       list << item_a << item_b
     end
     let(:list_b) { list_a.dup }
-    
+
     it 'returns false if the other object is not a list' do
       object = Minitest::Mock.new
       object.expect :is_a?, false, [subject]
       refute_operator list, :==, object
       object.verify
     end
-    
+
     it 'returns true for lists with items with equal values' do
       refute_same list_a, list_b
       assert_equal list_a, list_b
     end
-    
+
     it 'returns false for lists with items that are not equal' do
       list_b.last.value = :not_value
       refute_equal list_a, list_b
     end
-    
+
     it 'returns false for lists of unequal length' do
       list_b.pop
       refute_equal list_a, list_b
     end
   end
-  
+
   describe '#empty?' do
     it 'returns true for empty lists' do
       assert_predicate list, :empty?
     end
-    
+
     it 'returns false for non-empty lists' do
       list << item
       refute_predicate list, :empty?
     end
-    
+
     it 'returns false when items override #==' do
       item.define_singleton_method(:==) { |_| true }
       list << item
@@ -80,42 +82,42 @@ describe Linked::List do
       it 'returns nil for empty lists' do
         assert_nil list.first
       end
-      
+
       it 'returns the first item' do
         list.push item
         assert_same item, list.first
       end
     end
-    
+
     describe 'with argument n' do
       it 'returns an empty array when n = 0' do
         assert_equal [], list.first(0)
       end
-      
+
       it 'raises an error if n < 0' do
         assert_raises(ArgumentError) { list.first(-1) }
       end
-      
+
       it 'returns an empty array for empty lists when n > 0' do
         assert_equal [], list.first(1)
       end
-      
+
       it 'returns the first n items' do
         list.push item_a
         list.push item_b
-        
+
         res = list.first 2
-        
+
         assert_same item_a, res[0]
         assert_same item_b, res[1]
       end
-      
+
       it 'only returns the available items' do
         list.push item_a
         list.push item_b
-        
+
         res = list.first 3
-  
+
         assert_equal 2, res.length
       end
     end
@@ -126,42 +128,42 @@ describe Linked::List do
       it 'returns nil for empty lists' do
         assert_nil list.last
       end
-      
+
       it 'returns the first item' do
         list.push item
         assert_same item, list.last
       end
     end
-    
+
     describe 'with argument n' do
       it 'returns an empty array when n = 0' do
         assert_equal [], list.last(0)
       end
-      
+
       it 'raises an error if n < 0' do
         assert_raises(ArgumentError) { list.last(-1) }
       end
-      
+
       it 'returns an empty array for empty lists when n > 0' do
         assert_equal [], list.last(1)
       end
-      
+
       it 'returns the last n items' do
         list.push item_a
         list.push item_b
-        
+
         res = list.last 2
-        
+
         assert_same item_a, res[0]
         assert_same item_b, res[1]
       end
-      
+
       it 'only returns the available items' do
         list.push item_a
         list.push item_b
-        
+
         res = list.last 3
-  
+
         assert_equal 2, res.length
       end
     end
@@ -171,7 +173,7 @@ describe Linked::List do
     it 'returns 0 for empty lists' do
       assert_equal 0, list.count
     end
-    
+
     it 'returns the number of items' do
       list.push item_a
       list.push item_b
@@ -220,7 +222,7 @@ describe Linked::List do
     it 'inserts multiple items' do
       list.push item_a
       list.push item_b
-      
+
       assert_list_contains list, item_a, item_b
     end
 
@@ -238,7 +240,7 @@ describe Linked::List do
 
   describe '#pop' do
     before { list << item_a << item_b }
-    
+
     it 'removes the last Item' do
       list.pop
       assert_list_contains list, item_a
@@ -252,10 +254,10 @@ describe Linked::List do
     it 'leaves the list empty' do
       list.pop
       list.pop
-      
+
       assert_equal 0, list.count
     end
-    
+
     it 'returns nil for empty lists' do
       assert_nil subject.new.pop
     end
@@ -282,7 +284,7 @@ describe Linked::List do
     it 'inserts multiple items' do
       list.unshift item_b
       list.unshift item_a
-      
+
       assert_list_contains list, item_a, item_b
     end
 
@@ -296,7 +298,7 @@ describe Linked::List do
 
   describe '#shift' do
     before { list << item_a << item_b }
-    
+
     it 'removes the first item' do
       list.shift
       assert_list_contains list, item_b
@@ -318,18 +320,18 @@ describe Linked::List do
       assert_nil subject.new.shift
     end
   end
-  
+
   describe '#include?' do
     before { list << item_a }
-    
+
     it 'returns true when the item is in the list' do
       assert list.include?(item_a)
     end
-    
+
     it 'returns false when the item is not in the list' do
       refute list.include?(item_b)
     end
-    
+
     it 'returns false for other objects' do
       refute list.include?(:no_item)
     end
@@ -340,7 +342,7 @@ describe Linked::List do
 
     it 'returns a sized enumerator' do
       enum = list.each_item
-      
+
       assert_kind_of Enumerator, enum
       assert_equal list.count, enum.size
     end
@@ -425,16 +427,18 @@ describe Linked::List do
 
     it 'contains the output of the items' do
       res = list.inspect
-      
+
       assert_match(/#{item_a.inspect}/, res)
       assert_match(/#{item_b.inspect}/, res)
     end
 
-    # it 'accepts a block' do
-    #   res = list.inspect { |item| item.value }
-    #
-    #   refute_nil res["├─╴a\n"]
-    #   refute_nil res['└─╴b']
-    # end
+    it 'accepts a block' do
+      c = 0
+      res = list.inspect { c += 1 }
+
+      refute_nil res["1\n"]
+      refute_nil res["├─╴2\n"]
+      refute_nil res['└─╴3']
+    end
   end
 end

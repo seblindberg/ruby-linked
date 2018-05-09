@@ -1,19 +1,16 @@
 # frozen_string_literal: true
 
 module Linked
-  # List
-  #
   # This class provides a way extend the regular chain of listable items with
   # the concept of an empty chain.
   #
   # Lists are ment to behave more like arrays, and respond to many of the same
   # methods.
-
   class List
-    include Enumerable
+    include ListEnumerable
+    include Util
 
     # Initializes the list.
-
     def initialize
       reset_list
       super
@@ -22,10 +19,11 @@ module Linked
     # When copying a list its entire item chain needs to be copied as well.
     # Therefore #dup will be called on each of the original lists items, making
     # this operation quite expensive.
-
+    #
+    # @param source [List] the list to copy.
     def initialize_dup(source)
       reset_list
-      source.each_item { |item| push item.dup  }
+      source.each_item { |item| push item.dup }
 
       super
     end
@@ -35,8 +33,7 @@ module Linked
     # methods that work on List objects to easily and interchangeably accept
     # both lists and items as arguments.
     #
-    # Returns the first item in the list.
-
+    # @return [Listable] the first item in the list.
     def item
       raise NoMethodError if empty?
       @_chain
@@ -44,13 +41,12 @@ module Linked
 
     # Two lists are considered equal if the n:th item from each list are equal.
     #
-    # other - any object.
-    #
-    # Returns true if the given object is a list and the items are equal.
-
+    # @param  other [Object] the object to compare with.
+    # @return [true] if the given object is a list and the items are equal.
+    # @return [false] otherwise.
     def ==(other)
       return false unless other.is_a? self.class
-      return false unless other.count == self.count
+      return false unless other.count == count
 
       other_items = other.each_item
       each_item.all? { |item| item == other_items.next }
@@ -58,60 +54,8 @@ module Linked
 
     alias eql? ==
 
-    # Access the first n item(s) in the list.
-    #
-    # n - the number of items to return.
-    #
-    # Returns, for different values of n:
-    # n = nil) an item if the list contains one, or nil.
-    #  n >= 0) an array of between 0 and n items, depending on how many are in.
-    #          the list.
-
-    def first(n = nil)
-      return list_head unless n
-      raise ArgumentError, 'n cannot be negative' if n < 0
-      
-      return [] if n == 0 || empty?
-
-      list_head.take n
-    end
-
-    # Access the first n item(s) in the list.
-    #
-    # n - the number of items to return.
-    #
-    # Returns, for different values of n:
-    # n = nil) an item if the list contains one, or nil.
-    #  n >= 0) an array of between 0 and n items, depending on how many are in.
-    #          the list. The order is preserved.
-
-    def last(n = nil)
-      return empty? ? nil : list_tail unless n
-      raise ArgumentError, 'n cannot be negative' if n < 0
-      
-      return [] if n == 0 || empty?
-      
-      list_tail.take(-n)
-    end
-
-    # Overrides the Enumerable#count method when given no argument to provide a
-    # fast item count. Instead of iterating over each item, the internal item
-    # count is returned.
-    #
-    # args - see Enumerable#count
-    #
-    # Returns the number of items counted.
-
-    def count(*args)
-      if args.empty? && !block_given?
-        empty? ? 0 : @_chain.chain_length
-      else
-        super
-      end
-    end
-
-    # Returns true if the list does not contain any items.
-
+    # @return [true] if the list does not contain any items.
+    # @return [false] otherwise.
     def empty?
       nil.eql? @_chain
     end
@@ -122,19 +66,17 @@ module Linked
     #
     # See Item#append for more details.
     #
-    # object - the item to insert, or an arbitrary object.
-    #
-    # Returns self.
-
+    # @param object [#item, Object] the item to insert, or an arbitrary object.
+    # @return [self]
     def push(object)
       item = coerce_item object
-      
+
       if empty?
         @_chain = item
       else
         list_tail.append item
       end
-            
+
       self
     end
 
@@ -142,11 +84,11 @@ module Linked
 
     # Pop the last item off the list.
     #
-    # Returns the last item in the list, or nil if the list is empty.
-
+    # @return [Listable, nil] the last item in the list, or nil if the list is
+    #   empty.
     def pop
       return nil if empty?
-      
+
       if list_tail.first?
         item = last
         @_chain = nil
@@ -162,10 +104,8 @@ module Linked
     #
     # See Item#prepend for more details.
     #
-    # object - the item to insert, or an arbitrary object.
-    #
-    # Returns self.
-
+    # @param object [#item, Object] the item to insert, or an arbitrary object.
+    # @return [self]
     def unshift(object)
       item = coerce_item object
       @_chain = empty? ? item.chain : @_chain.prepend(item)
@@ -175,11 +115,11 @@ module Linked
 
     # Shift the first item off the list.
     #
-    # Returns the first item in the list, or nil if the list is empty.
-
+    # @return [Listable, nil] the first item in the list, or nil if the list is
+    #   empty.
     def shift
       return nil if empty?
-      
+
       if list_head.last?
         item = @_chain
         @_chain = nil
@@ -193,81 +133,44 @@ module Linked
 
     # Check if an item is in the list.
     #
-    # item - Item, or any object that may be in the list.
-    #
-    # Returns true if the given item is in the list, otherwise false.
-
+    # @param  item [Object] any object that may be in the list.
+    # @return [true] if the given item is in the list.
+    # @return [false] otherwise.
     def include?(item)
       return false if empty?
       # TODO: This works fine, but looks wrong.
       @_chain.in_chain? item
     end
 
-    # Iterates over each item in the list If a block is not given an enumerator
-    # is returned.
-
-    def each_item
-      return to_enum(__method__) { count } unless block_given?
-      return if empty?
-
-      item = list_head
-      loop do
-        yield item
-        item = item.next
-      end
-    end
-
-    alias each each_item
-
-    # Iterates over each item in the list in reverse order. If a block is not
-    # given an enumerator is returned.
-
-    def reverse_each_item
-      return to_enum(__method__) { count } unless block_given?
-      return if empty?
-
-      item = list_tail
-      loop do
-        yield item
-        item = item.prev
-      end
-    end
-
-    alias reverse_each reverse_each_item
-
     # Calls #freeze on all items in the list, as well as the head and the tail
     # (eol).
-
+    #
+    # @return [self]
     def freeze
       each_item(&:freeze)
       super
     end
-    
+
     # Overrides the default inspect method to provide a more useful view of the
     # list.
     #
     # Importantly this implementation supports nested lists and will return a
     # tree like structure.
-    
+
     def inspect_list(&block)
-      res =
-        if block_given?
-          [yield(self)]
-        else
-          [format('%s:0x%0x', self.class.name, object_id)]
-        end
-      
+      res = [block_given? ? yield(self) : object_identifier]
+
       each_item do |item|
         lines = item.inspect(&block).split "\n"
-      
-        res.push (item.last? ? '└─╴' : '├─╴') + lines.shift
+
+        res.push((item.last? ? '└─╴' : '├─╴') + lines.shift)
         padding = item.last? ? '   ' : '│  '
         lines.each { |line| res.push padding + line }
       end
-      
+
       res.join("\n")
     end
- 
+
     alias inspect inspect_list
 
     # Protected factory method for creating items compatible with the list. This
@@ -276,20 +179,19 @@ module Linked
     #
     # This method can be overridden to support different Item types.
     #
-    # args - any arguments will be passed on to Item.new.
-    #
-    # Returns a new Listable Item.
-
+    # @param  args [Array<Object>] the arguments that are to be passed on to
+    #   `Item.new`.
+    # @return [Item] a new `Listable` item.
     protected def create_item(*args)
       Item.new(*args)
     end
-    
+
     # Takes an arbitrary object and coerces it into an item compliant with the
     # list. If the object is already an item it will be used as is. Otherwise
     # #create_item will be called with the object as an argument.
     #
-    # Returns a Listable item.
-    
+    # @param  [#item, Object] the object to coerce.
+    # @return [Listable] see `#create_item`.
     private def coerce_item(object)
       if object.respond_to? :item
         object.item
@@ -297,22 +199,19 @@ module Linked
         create_item object
       end
     end
-    
+
     # Private method for clearing the list and bringing it to a pristine
     # state.
-    
     private def reset_list
       @_chain = nil
     end
 
     # Returns the first item item in the list, or nil if empty.
-
     private def list_head
       @_chain
     end
 
     # Returns an the last item in the list, or nil if empty.
-
     private def list_tail
       @_chain.last_in_chain
     end

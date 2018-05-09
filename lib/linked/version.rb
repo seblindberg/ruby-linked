@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
 module Linked
-  VERSION = '0.5.0'
+  # The current version number of the Linked library.
+  VERSION = '0.5.1'
 end
