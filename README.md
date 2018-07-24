@@ -1,17 +1,11 @@
-# Linked
+# 🔗 Linked
 
 [![Gem Version](https://badge.fury.io/rb/linked.svg)](https://badge.fury.io/rb/linked)
 [![Build Status](https://travis-ci.org/seblindberg/ruby-linked.svg?branch=master)](https://travis-ci.org/seblindberg/ruby-linked)
 [![Coverage Status](https://coveralls.io/repos/github/seblindberg/ruby-linked/badge.svg?branch=master)](https://coveralls.io/github/seblindberg/ruby-linked?branch=master)
 [![Inline docs](http://inch-ci.org/github/seblindberg/ruby-linked.svg?branch=master)](http://inch-ci.org/github/seblindberg/ruby-linked)
 
-Yet another Linked List implementation for Ruby (hence the somewhat awkward name). The library is still under development. The intention is to
-
-1. nail down the functionality,
-2. start porting the methods over to c and finally
-3. try to optimize for speed, as much as possible.
-
-The project is still in phase 1.
+Yet another Linked List implementation for Ruby (hence the somewhat awkward name).
 
 ## Installation
 
