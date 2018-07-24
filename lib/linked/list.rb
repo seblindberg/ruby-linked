@@ -89,13 +89,7 @@ module Linked
     def pop
       return nil if empty?
 
-      if list_tail.first?
-        item = last
-        @_chain = nil
-        item
-      else
-        list_tail.delete
-      end
+      list_tail.first? ? last.tap { @_chain = nil } : list_tail.delete
     end
 
     # Insert an item at the beginning of the list. If the given object is not an
@@ -121,9 +115,7 @@ module Linked
       return nil if empty?
 
       if list_head.last?
-        item = @_chain
-        @_chain = nil
-        item
+        @_chain.tap { @_chain = nil }
       else
         old_head = list_head
         @_chain = list_head.next
@@ -197,11 +189,7 @@ module Linked
     # @param  [#item, Object] the object to coerce.
     # @return [Listable] see `#create_item`.
     def coerce_item(object)
-      if object.respond_to? :item
-        object.item
-      else
-        create_item object
-      end
+      object.respond_to?(:item) ? object.item : create_item(object)
     end
 
     # Private method for clearing the list and bringing it to a pristine
