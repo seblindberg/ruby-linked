@@ -173,6 +173,8 @@ module Linked
 
     alias inspect inspect_list
 
+    protected
+
     # Protected factory method for creating items compatible with the list. This
     # method is called whenever an arbitrary object is pushed or unshifted onto
     # the list and need to be wraped inside an Item.
@@ -182,9 +184,11 @@ module Linked
     # @param  args [Array<Object>] the arguments that are to be passed on to
     #   `Item.new`.
     # @return [Item] a new `Listable` item.
-    protected def create_item(*args)
+    def create_item(*args)
       Item.new(*args)
     end
+
+    private
 
     # Takes an arbitrary object and coerces it into an item compliant with the
     # list. If the object is already an item it will be used as is. Otherwise
@@ -192,7 +196,7 @@ module Linked
     #
     # @param  [#item, Object] the object to coerce.
     # @return [Listable] see `#create_item`.
-    private def coerce_item(object)
+    def coerce_item(object)
       if object.respond_to? :item
         object.item
       else
@@ -202,17 +206,17 @@ module Linked
 
     # Private method for clearing the list and bringing it to a pristine
     # state.
-    private def reset_list
+    def reset_list
       @_chain = nil
     end
 
     # Returns the first item item in the list, or nil if empty.
-    private def list_head
+    def list_head
       @_chain
     end
 
     # Returns an the last item in the list, or nil if empty.
-    private def list_tail
+    def list_tail
       @_chain.last_in_chain
     end
   end

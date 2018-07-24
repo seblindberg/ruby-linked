@@ -22,6 +22,9 @@ module Linked
 
     # Iterates over each item in the list in reverse order. If a block is not
     # given an enumerator is returned.
+    #
+    # @yield  [Listable] each item in the list.
+    # @return [Enumerable] if no block is given.
     def reverse_each_item
       return to_enum(__method__) { count } unless block_given?
       return if empty?
@@ -37,12 +40,9 @@ module Linked
 
     # Access the first n item(s) in the list.
     #
-    # n - the number of items to return.
-    #
-    # Returns, for different values of n:
-    # n = nil) an item if the list contains one, or nil.
-    #  n >= 0) an array of between 0 and n items, depending on how many are in.
-    #          the list.
+    # @param  n [Integer] the number of items to return.
+    # @return [Listable] if n = nil.
+    # @return [Array<Listable>] if n >= 0.
     def first(n = nil)
       return list_head unless n
       raise ArgumentError, 'n cannot be negative' if n.negative?
@@ -54,12 +54,9 @@ module Linked
 
     # Access the first n item(s) in the list.
     #
-    # n - the number of items to return.
-    #
-    # Returns, for different values of n:
-    # n = nil) an item if the list contains one, or nil.
-    #  n >= 0) an array of between 0 and n items, depending on how many are in.
-    #          the list. The order is preserved.
+    # @param  n [Integer] the number of items to return.
+    # @return [Listable] if n = nil.
+    # @return [Array<Listable>] if n >= 0. The order is preserved.
     def last(n = nil)
       return empty? ? nil : list_tail unless n
       raise ArgumentError, 'n cannot be negative' if n.negative?

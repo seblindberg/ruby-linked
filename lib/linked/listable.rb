@@ -37,6 +37,7 @@ module Linked
   # Single items are denoted with capital letters (i), while chains are written
   # as multiple connected items (ii).
   module Listable
+    extend  Forwardable
     include Util
 
     # Creates a new item. Always make a call to super whenever overriding this
@@ -70,14 +71,9 @@ module Linked
     #
     # @return [true] if the item is the head of the chain.
     # @return [false] otherwise.
-    def chain_head?
-      # p @_chain_head.is_a? Numeric
-      # @_chain_head.is_a? Numeric
-      @_prev.chain_tail?
-    end
+    def_delegator :@_prev, :chain_tail?, :chain_head?
 
     alias first? chain_head?
-    protected :chain_head?
 
     # Returns true if no item come after this one. Note that the implementation
     # of this method is protected and publicly accessible through its alias
@@ -85,12 +81,9 @@ module Linked
     #
     # @return [true] if the item is the tail of the chain.
     # @return [false] otherwise.
-    def chain_tail?
-      @_next.nil?
-    end
+    def_delegator :@_next, :nil?, :chain_tail?
 
     alias last? chain_tail?
-    protected :chain_tail?
 
     # Returns the first item in the chain. Note that the implementation of this
     # method is protected and publicly accessible through its aliases
@@ -103,7 +96,6 @@ module Linked
 
     alias first_in_chain chain_head
     alias chain chain_head
-    protected :chain_head
 
     # Returns the last item in the chain. Note that the implementation of this
     # method is protected and publicly accessible through its aliases
@@ -115,14 +107,11 @@ module Linked
     end
 
     alias last_in_chain chain_tail
-    protected :chain_tail
 
     # Returns the number of items in the current chain.
     #
     # @return [Integer] the number of items in the chain.
-    def chain_length
-      chain_head.chain_head!
-    end
+    def_delegator :chain_head, :chain_head!, :chain_length
 
     # Check if this object is in a chain.
     #
@@ -432,7 +421,6 @@ module Linked
     # Never call this method directly since it may corrupt the chain.
     #
     # Sets the value of the `first` field.
-
     def chain_head=(other)
       @_chain_head = other
     end
@@ -443,7 +431,6 @@ module Linked
     # n - the number of items to increase the chain count with.
     #
     # Returns the updated chain count.
-
     def grow(n = 1)
       head = chain_head
       head.chain_head = head.chain_head! + n
@@ -455,7 +442,6 @@ module Linked
     # n - the number of items to decrease the chain count with.
     #
     # Returns the updated chain count.
-
     def shrink(n = 1)
       head = chain_head
       head.chain_head = head.chain_head! - n
@@ -476,7 +462,6 @@ module Linked
     # head_b - the head of a new chain that (iii) will be added to.
     #
     # Returns the last element of (iii).
-
     def split_before_and_insert(head_b = self)
       # Get the current chain head. It will remain the head
       # of sub chain a (ii). If this item is the first then
@@ -600,5 +585,7 @@ module Linked
       @_next = nil
       @_prev = self
     end
+
+    protected :chain_head?, :chain_tail?, :chain_head, :chain_tail
   end
 end

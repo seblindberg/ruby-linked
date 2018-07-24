@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 require 'linked/version'
 require 'linked/util'
 require 'linked/listable'
