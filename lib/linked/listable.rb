@@ -66,6 +66,8 @@ module Linked
       self
     end
 
+    # @!method chain_head?
+    #
     # Returns true if no item come before this one. Note that the implementation
     # of this method is protected and publicly accessible through its alias
     # #first?.
@@ -76,6 +78,8 @@ module Linked
 
     alias first? chain_head?
 
+    # @!method chain_tail?
+    #
     # Returns true if no item come after this one. Note that the implementation
     # of this method is protected and publicly accessible through its alias
     # #last?.

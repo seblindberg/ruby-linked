@@ -186,7 +186,7 @@ module Linked
     # list. If the object is already an item it will be used as is. Otherwise
     # #create_item will be called with the object as an argument.
     #
-    # @param  [#item, Object] the object to coerce.
+    # @param  object [#item, Object] the object to coerce.
     # @return [Listable] see `#create_item`.
     def coerce_item(object)
       object.respond_to?(:item) ? object.item : create_item(object)
