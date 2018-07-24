@@ -10,6 +10,7 @@ module Linked
 
     # The Item can hold an arbitrary object as its value and it will stay with
     # the item.
+    #
     # @return [Object] any object that is stored in the item.
     attr_accessor :value
 

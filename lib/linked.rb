@@ -12,5 +12,5 @@ require 'linked/list'
 
 # Linked List implementation.
 module Linked
-  private_constant :Util, :ListEnumerable, :Mutable
+  private_constant :Util
 end
